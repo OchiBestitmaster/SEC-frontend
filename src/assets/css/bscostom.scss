@@ -1,0 +1,22 @@
+$primary: #0081cc; // 變更主要顏色
+$secondary: #63c0ab;
+$info:       #c44d81;
+$success:    #00ac5e;
+$warning:    #fc9700;
+$danger:     #f80500;
+$light:      #e0f5f5;
+$dark:       #044a58;
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  color: #fff !important;
+}
+.btn-secondary,
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active {
+  color: #fff !important;
+}
+// 匯入 Bootstrap 核心
+@import "bootstrap/scss/bootstrap";
