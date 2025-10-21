@@ -22,3 +22,10 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### DEMO說明
+_R:收文窗口
+_W:單位窗口
+_O:承辦
+_M:主管
+_B:經理
