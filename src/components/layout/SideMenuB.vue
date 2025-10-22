@@ -1,9 +1,9 @@
 <template>
   <ul id="metismenu">
-    <li><router-link to="/">公文儀表板B</router-link></li>
+    <li><router-link to="/">公文儀表板</router-link></li>
     <li><a href="#" class="has-arrow">我的公文匣</a>
       <ul>
-        <li><router-link to="/ReceiveList">待處理公文</router-link></li>
+        <li><router-link to="/PendingReceiveViewO">待處理公文</router-link></li>
         <li><router-link to="/">代理人公文</router-link></li>
         <li><router-link to="/">知會公文</router-link></li>
       </ul>

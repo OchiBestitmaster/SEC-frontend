@@ -21,6 +21,7 @@
                   <th>主旨</th>
                   <th>來文單位</th>
                   <th>來文字號</th>
+                  <th class="text-center">狀態</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -38,6 +39,7 @@
                   <td nowrap="">
                     能資字第 11400759780 號
                   </td>
+                  <td class="text-center"><span class="text-danger" data-bs-toggle="tooltip" data-bs-html="true" data-bs-title="材化所<br>電光所、綠能所、機械所">退回</span></td>
                 </tr>
                 <tr>
                   <td class="text-center">
@@ -53,6 +55,7 @@
                   <td nowrap="">
                     能資字第 11400759780 號
                   </td>
+                  <td class="text-center text-nowrap">待分案</td>
                 </tr>
 
                 <tr>
@@ -69,6 +72,7 @@
                   <td nowrap="">
                     能資字第 11400759780 號
                   </td>
+                  <td class="text-center">待分案</td>
                 </tr>
 
                 <tr>
@@ -86,6 +90,7 @@
                     （114）永研字第
                     11400795092 號
                   </td>
+                  <td class="text-center">待分案</td>
                 </tr>
 
                 <tr>
@@ -103,6 +108,7 @@
                     南市高字第
                     11412375287 號
                   </td>
+                  <td class="text-center">待分案</td>
                 </tr>
                 </tbody>
               </table>
@@ -168,7 +174,7 @@
                   <div class="col-md-auto flex-grow-1">
                     <div class="input-group input-group-sm">
                       <input type="text" class="form-control" aria-label="">
-                      <button class="btn btn-outline-primary">選擇</button>
+                      <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#customtopicbox">選擇</button>
                     </div>
                   </div>
                   <!-- form item end -->
@@ -197,10 +203,76 @@
 
     </div><!-- content-wrapper -->
   </div>
+
+
+<div class="modal fade" id="customtopicbox" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">分案對象</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+      <div id="html1">
+  <ul>
+    <li>行管部
+      <ul>
+        <li>連家玟</li>
+        <li>馮展榮</li>
+        <li>李麗敏</li>
+        <li>全嘉傑</li>
+        <li>辛文暄</li>
+      </ul>
+    </li>
+    <li>財務部
+      <ul>
+        <li>黄士晉</li>
+        <li>賈宜德</li>
+        <li>蔣智安</li>
+        <li>包唯中</li>
+      </ul>
+    </li>
+    <li>技術部
+      <ul>
+        <li>王芷茵</li>
+        <li>侯韶恩</li>
+        <li>蕭昊天</li>
+      </ul>
+    </li>
+  </ul>
+</div>
+      </div><!-- modal-body -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </template>
 
 <script>
+import $ from 'jquery';
+import 'jstree/dist/jstree.min.js';
+import 'jstree/dist/themes/default/style.min.css';
+import * as bootstrap from 'bootstrap';
 export default {
  
+  mounted() {
+    $('#html1').jstree({
+        core: {
+        themes: {
+          icons: false
+        }
+      },
+      plugins: ['checkbox'],
+    });
+
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+[...tooltipTriggerList].forEach(el => new bootstrap.Tooltip(el));
+
+  }
 };
 </script>

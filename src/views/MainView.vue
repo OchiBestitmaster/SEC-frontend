@@ -31,6 +31,7 @@
 </template>
 
 <script setup>
+// eslint-disable-next-line no-unused-vars
 import { ref, onMounted } from 'vue';
 import HeaderInfo from '@/components/layout/HeaderInfo.vue';
 import SideMenuA from '@/components/layout/SideMenuA.vue';

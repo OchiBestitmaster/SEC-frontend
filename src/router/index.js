@@ -6,10 +6,13 @@ import ThemeView from '../views/ThemeView.vue'
 import AssignDeskView from "../views/AssignDeskView.vue";
 import PendingReceiveView from "../views/PendingReceiveView.vue";
 import ReceiveDocView from "../views/ReceiveDocView.vue";
+import ReceiveDocViewonly from "../views/ReceiveDocViewonly.vue";
 import ReceiveSignView from "../views/ReceiveSignView.vue";
 import ReceiveListView from "../views/ReceiveListView.vue";
 
 import HomeViewR from '../views/HomeView_R.vue'
+
+import PendingReceiveViewO from "../views/PendingReceiveView_O.vue";
 const routes = [
   // 收文窗口
   {
@@ -37,6 +40,18 @@ const routes = [
     ],
   },
   {
+    path: '/ReceiveDocViewonly',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'ReceiveDocViewonly',
+        component: ReceiveDocViewonly,
+        meta: { pageName: '收文窗口', sideMenu: 'SideMenuA' }
+      },
+    ],
+  },
+  {
     path: '/ReceiveList',
     component: MainView,
     children: [
@@ -48,6 +63,21 @@ const routes = [
       },
     ],
   },
+  // 收文窗口 end
+  // 承辦人
+  {
+    path: '/PendingReceiveViewO',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'PendingReceiveViewO',
+        component: PendingReceiveViewO,
+        meta: { pageName: '承辦人', sideMenu: 'SideMenuB' }
+      },
+    ],
+  },
+  // 承辦人 end
   {
     path: '/',
     component: MainView,
