@@ -208,6 +208,9 @@ body{background:#EFF5FA;}
 .shadowR{box-shadow: 5px 0 20px -2px rgba(99,118,133,0.2);}
 .border-nonfocus{border-color:#b2c3d1}
 .bg-nonfocus{background-color:#dae6f0;}
-.btn-outline-primary:hover {
+.btn-outline-primary:hover, .btn-outline-danger:hover{
   color: #fff !important;  
+}
+.border-dashed{
+  border-style: dashed !important;
 }

@@ -36,6 +36,8 @@ import { ref, onMounted } from 'vue';
 import HeaderInfo from '@/components/layout/HeaderInfo.vue';
 import SideMenuA from '@/components/layout/SideMenuA.vue';
 import SideMenuB from '@/components/layout/SideMenuB.vue';
+import SideMenuO from '@/components/layout/SideMenuO.vue';
+import SideMenuM from '@/components/layout/SideMenuM.vue';
 import '@fortawesome/fontawesome-free/css/all.css';
 import "@/assets/css/bscostom.scss"
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -53,7 +55,9 @@ const username = computed(() => route.meta.pageName || '預設名稱');
 
 const sideMenus = {
   SideMenuA,
-  SideMenuB
+  SideMenuB,
+  SideMenuO,
+  SideMenuM
 };
 
 const currentSideMenu = computed(() => sideMenus[route.meta.sideMenu] || SideMenuA);

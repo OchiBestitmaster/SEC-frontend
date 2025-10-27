@@ -5,14 +5,22 @@ import HomeView from '../views/HomeView.vue'
 import ThemeView from '../views/ThemeView.vue'
 import AssignDeskView from "../views/AssignDeskView.vue";
 import PendingReceiveView from "../views/PendingReceiveView.vue";
-import ReceiveDocView from "../views/ReceiveDocView.vue";
+//import ReceiveDocView from "../views/ReceiveDocView.vue";
 import ReceiveDocViewonly from "../views/ReceiveDocViewonly.vue";
+import ReceiveDocViewO from "../views/ReceiveDocView_O.vue";
+import ReceiveDocViewM from "../views/ReceiveDocView_M.vue";
 import ReceiveSignView from "../views/ReceiveSignView.vue";
 import ReceiveListView from "../views/ReceiveListView.vue";
 
-import HomeViewR from '../views/HomeView_R.vue'
+import HomeViewR from '../views/HomeView_R.vue';
+import HomeViewO from '../views/HomeView_O.vue';
+import HomeViewM from '../views/HomeView_M.vue';
 
 import PendingReceiveViewO from "../views/PendingReceiveView_O.vue";
+import PendingReceiveViewO2 from "../views/PendingReceiveView_O2.vue";
+import PendingReceiveViewM from "../views/PendingReceiveView_M.vue";
+import PendingReceiveViewM2 from "../views/PendingReceiveView_M2.vue";
+
 const routes = [
   // 收文窗口
   {
@@ -66,6 +74,18 @@ const routes = [
   // 收文窗口 end
   // 承辦人
   {
+    path: '/HomeO',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'HomeViewO',
+        component: HomeViewO,
+        meta: { pageName: '承辦人', sideMenu: 'SideMenuO' }
+      },
+    ],
+  },
+  {
     path: '/PendingReceiveViewO',
     component: MainView,
     children: [
@@ -73,11 +93,85 @@ const routes = [
         path: '',
         name: 'PendingReceiveViewO',
         component: PendingReceiveViewO,
-        meta: { pageName: '承辦人', sideMenu: 'SideMenuB' }
+        meta: { pageName: '承辦人', sideMenu: 'SideMenuO' }
+      },
+    ],
+  },
+  {
+    path: '/PendingReceiveViewO2',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'PendingReceiveViewO2',
+        component: PendingReceiveViewO2,
+        meta: { pageName: '承辦人', sideMenu: 'SideMenuO' }
+      },
+    ],
+  },
+  {
+    path: '/ReceiveDocO',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'ReceiveDocViewO',
+        component: ReceiveDocViewO,
+        meta: { pageName: '承辦人', sideMenu: 'SideMenuO' }
       },
     ],
   },
   // 承辦人 end
+  // 主任
+  {
+    path: '/HomeM',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'HomeViewM',
+        component: HomeViewM,
+        meta: { pageName: '主任', sideMenu: 'SideMenuM' }
+      },
+    ],
+  },
+  {
+    path: '/PendingReceiveViewM',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'PendingReceiveViewM',
+        component: PendingReceiveViewM,
+        meta: { pageName: '主任', sideMenu: 'SideMenuM' }
+      },
+    ],
+  },
+  {
+    path: '/ReceiveDocViewM',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'ReceiveDocViewM',
+        component: ReceiveDocViewM,
+        meta: { pageName: '主任', sideMenu: 'SideMenuM' }
+      },
+    ],
+  },
+  {
+    path: '/PendingReceiveViewM2',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'PendingReceiveViewM2',
+        component: PendingReceiveViewM2,
+        meta: { pageName: '主任', sideMenu: 'SideMenuM' }
+      },
+    ],
+  },
+  // 主任 end
   {
     path: '/',
     component: MainView,
@@ -124,18 +218,6 @@ const routes = [
         name: 'PendingReceiveView',
         component: PendingReceiveView,
         meta: { pageName: '收文處理員', sideMenu: 'SideMenuA' }
-      },
-    ],
-  },
-  {
-    path: '/ReceiveDoc',
-    component: MainView,
-    children: [
-      {
-        path: '',
-        name: 'ReceiveDocView',
-        component: ReceiveDocView,
-        meta: { pageName: '新收文建立者', sideMenu: 'SideMenuA' }
       },
     ],
   },
