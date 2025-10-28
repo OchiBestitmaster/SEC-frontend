@@ -38,6 +38,7 @@ import SideMenuA from '@/components/layout/SideMenuA.vue';
 import SideMenuB from '@/components/layout/SideMenuB.vue';
 import SideMenuO from '@/components/layout/SideMenuO.vue';
 import SideMenuM from '@/components/layout/SideMenuM.vue';
+import SideMenuF from '@/components/layout/SideMenuF.vue';
 import '@fortawesome/fontawesome-free/css/all.css';
 import "@/assets/css/bscostom.scss"
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -57,7 +58,8 @@ const sideMenus = {
   SideMenuA,
   SideMenuB,
   SideMenuO,
-  SideMenuM
+  SideMenuM,
+  SideMenuF
 };
 
 const currentSideMenu = computed(() => sideMenus[route.meta.sideMenu] || SideMenuA);

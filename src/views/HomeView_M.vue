@@ -77,25 +77,22 @@
               <th class="text-center">申請者</th>
               <th class="text-center">申請日期</th>
               <th class="text-center">表單狀態</th>
-              <th class="text-center">審核狀態</th>
               <th class="text-center">功能</th>
             </tr>
             </thead>
             <tbody>
             <tr>
-              <td>收文表單</td>
-              <td scope="row" nowrap="">
+              <td class="align-middle">收文表單</td>
+              <td class="align-middle">
                 <div class="muted">250900012</div>
               </td>
-              <td>台灣雷力企業聯合會TEPA</td>
-              <td class="text-center">何金銀</td>
-              <td class="text-center">2025/10/29</td>
-              <td class="text-center">結案</td>
-              <td class="text-center" nowrap="">核准</td>
+              <td class="align-middle">台灣雷力企業聯合會TEPA</td>
+              <td class="text-center align-middle">何金銀</td>
+              <td class="text-center align-middle">2025/10/29</td>
+              <td class="text-center align-middle">審核中</td>
               <td class="text-center">
                 <div class="btn-group btn-group-sm" role="group">
-                  <button type="button" class="btn btn-outline-primary">檢視</button>
-                  <button type="button" class="btn btn-outline-primary">列印</button>
+                  <button type="button" class="btn btn-outline-dark">檢視</button>
                 </div>
               </td>
             </tr>

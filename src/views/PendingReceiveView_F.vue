@@ -13,7 +13,7 @@
         <div class="card-body">
           <table class="table small" id="assigningpaper">
             <thead class="border-bottom border-dark-subtle">
-            <tr>
+             <tr>
               <th>表單名稱</th>
               <th>表單編號</th>
               <th>主旨</th>
@@ -30,16 +30,13 @@
                 <div class="muted">250900012</div>
               </td>
               <td>台灣雷力企業聯合會TEPA</td>
-              <td class="text-center"></td>
-              <td class="text-center"></td>
-              <td class="text-center">分案中</td>
+              <td class="text-center">連家玟</td>
+              <td class="text-center">2025/10/31</td>
+              <td class="text-center">審核中</td>
               <td class="text-center">
                 <div class="btn-group btn-group-sm" role="group">
-                  <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#backbox">退回</button>
-                  <a href="/ReceiveDocViewonlyO" target="_blank" type="button" class="btn btn-outline-dark">檢視</a>
-                  <button type="button" class="btn btn-outline-primary">存查</button>
-                  <a href="/ReceiveDocO" type="button" class="btn btn-outline-primary">簽辦</a>
-                  <button type="button" class="btn btn-outline-primary">回文</button>
+                  <a href="/ReceiveDocViewF" type="button" class="btn btn-outline-dark">檢視</a>
+                
                 </div>
               </td>
             </tr>
@@ -83,7 +80,7 @@
                   <!-- form item start -->
                   <div class="col-md-auto TitleSetWidth text-md-end"><label class="form-label" for="formA1">表單編號</label></div>
                   <div class="col-md-auto flex-grow-1">
-                    250900012
+                    
                   </div>
                   <!-- form item end -->
                 </div><!-- row -->
@@ -91,7 +88,6 @@
                   <!-- form item start -->
                   <div class="col-md-auto TitleSetWidth text-md-end"><label class="form-label" for="formA2">主旨</label></div>
                   <div class="col-md-auto flex-grow-1">
-                    台灣雷力企業聯合會TEPA
                   </div>
                   <!-- form item end -->
                 </div><!-- row -->

@@ -4,11 +4,13 @@ import PendingFormsView from '../views/PendingFormsView.vue'
 import HomeView from '../views/HomeView.vue'
 import ThemeView from '../views/ThemeView.vue'
 import AssignDeskView from "../views/AssignDeskView.vue";
+import AssignDeskViewR2 from "../views/AssignDeskViewR2.vue";
 import PendingReceiveView from "../views/PendingReceiveView.vue";
 //import ReceiveDocView from "../views/ReceiveDocView.vue";
 import ReceiveDocViewonly from "../views/ReceiveDocViewonly.vue";
 import ReceiveDocViewO from "../views/ReceiveDocView_O.vue";
 import ReceiveDocViewM from "../views/ReceiveDocView_M.vue";
+import ReceiveDocViewF from "../views/ReceiveDocView_F.vue";
 import ReceiveSignView from "../views/ReceiveSignView.vue";
 import ReceiveListView from "../views/ReceiveListView.vue";
 
@@ -20,6 +22,7 @@ import PendingReceiveViewO from "../views/PendingReceiveView_O.vue";
 import PendingReceiveViewO2 from "../views/PendingReceiveView_O2.vue";
 import PendingReceiveViewM from "../views/PendingReceiveView_M.vue";
 import PendingReceiveViewM2 from "../views/PendingReceiveView_M2.vue";
+import PendingReceiveViewF from "../views/PendingReceiveView_F.vue";
 
 const routes = [
   // 收文窗口
@@ -43,6 +46,18 @@ const routes = [
         path: '',
         name: 'AssignDeskView',
         component: AssignDeskView,
+        meta: { pageName: '收文窗口', sideMenu: 'SideMenuA' }
+      },
+    ],
+  },
+  {
+    path: '/AssignDesk2',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'AssignDeskViewR2',
+        component: AssignDeskViewR2,
         meta: { pageName: '收文窗口', sideMenu: 'SideMenuA' }
       },
     ],
@@ -121,6 +136,18 @@ const routes = [
       },
     ],
   },
+  {
+    path: '/ReceiveDocViewonlyO',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'ReceiveDocViewonlyO',
+        component: ReceiveDocViewonly,
+        meta: { pageName: '承辦人', sideMenu: 'SideMenuO' }
+      },
+    ],
+  },
   // 承辦人 end
   // 主任
   {
@@ -172,6 +199,56 @@ const routes = [
     ],
   },
   // 主任 end
+  // 加簽財務
+  {
+    path: '/HomeF',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'HomeViewF',
+        component: HomeViewM,
+        meta: { pageName: '財務部主任', sideMenu: 'SideMenuF' }
+      },
+    ],
+  },
+  {
+    path: '/PendingReceiveViewF',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'PendingReceiveViewF',
+        component: PendingReceiveViewF,
+        meta: { pageName: '財務部主任', sideMenu: 'SideMenuF' }
+      },
+    ],
+  },
+  {
+    path: '/ReceiveDocViewF',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'ReceiveDocViewF',
+        component: ReceiveDocViewF,
+        meta: { pageName: '財務部主任', sideMenu: 'SideMenuF' }
+      },
+    ],
+  },
+  {
+    path: '/PendingReceiveViewF2',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'PendingReceiveViewF2',
+        component: PendingReceiveViewM2,
+        meta: { pageName: '財務部主任', sideMenu: 'SideMenuF' }
+      },
+    ],
+  },
+  // 加簽財務 end
   {
     path: '/',
     component: MainView,

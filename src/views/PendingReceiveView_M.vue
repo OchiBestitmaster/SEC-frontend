@@ -2,7 +2,7 @@
   <div class="container-ochi w-large-ochi mt-2">
 
     <div class="filetitlewrapper mt-1">
-      <span class="filetitle"><h2>待處理收文</h2></span>
+      <span class="filetitle"><h2>待處理公文</h2></span>
       <span class="itemright"></span>
     </div>
   
@@ -13,14 +13,13 @@
         <div class="card-body">
           <table class="table small" id="assigningpaper">
             <thead class="border-bottom border-dark-subtle">
-            <tr>
+             <tr>
               <th>表單名稱</th>
               <th>表單編號</th>
               <th>主旨</th>
               <th class="text-center">申請者</th>
               <th class="text-center">申請日期</th>
               <th class="text-center">表單狀態</th>
-              <th class="text-center">審核狀態</th>
               <th class="text-center">功能</th>
             </tr>
             </thead>
@@ -31,17 +30,13 @@
                 <div class="muted">250900012</div>
               </td>
               <td>台灣雷力企業聯合會TEPA</td>
-              <td class="text-center">何金銀</td>
-              <td class="text-center">2025/10/29</td>
-              <td class="text-center">結案</td>
-              <td class="text-center" nowrap="">核准</td>
+              <td class="text-center">連家玟</td>
+              <td class="text-center">2025/10/31</td>
+              <td class="text-center">審核中</td>
               <td class="text-center">
                 <div class="btn-group btn-group-sm" role="group">
-                  <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#backbox">退回</button>
-                  <button type="button" class="btn btn-outline-dark">檢視</button>
-                  <button type="button" class="btn btn-outline-primary">存查</button>
-                  <a href="/ReceiveDocO" type="button" class="btn btn-outline-primary">簽辦</a>
-                  <button type="button" class="btn btn-outline-primary">回文</button>
+                  <a href="/ReceiveDocViewM" type="button" class="btn btn-outline-dark">檢視</a>
+                
                 </div>
               </td>
             </tr>

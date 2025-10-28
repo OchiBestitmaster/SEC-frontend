@@ -2,7 +2,7 @@
   <div class="container-ochi w-large-ochi mt-2">
 
     <div class="filetitlewrapper mt-1">
-      <span class="filetitle"><h2>待處理收文</h2></span>
+      <span class="filetitle"><h2>待處理公文</h2></span>
       <span class="itemright"></span>
     </div>
   

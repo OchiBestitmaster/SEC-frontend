@@ -8,9 +8,7 @@
   
     <div class="content-wrapper">
 
-      <div class="row">
-        <div class="col-xl-6">
-          <div class="card border-nonfocus mt-4 mb-2">
+     <div class="card border-nonfocus mt-4 mb-2">
             <div class="card-header bg-nonfocus fs-5">基本資料</div>
             <div class="card-body">
               <div class="ochiform TitleLength05">
@@ -89,38 +87,67 @@
               </div><!-- ochiform -->
             </div>
           </div><!-- card -->
-        </div><!-- col -->
-        <div class="col-xl-6">
-          <div class="card border-nonfocus mt-4 mb-2">
+
+      <div class="card border-nonfocus mt-4 mb-2">
             <div class="card-header bg-nonfocus">
               <div class="d-flex align-items-center justify-content-between">
                 <div class="fs-5">公文檢視</div>
                 <div>
-                  <div class="btn-group btn-group-sm" role="group" aria-label="Small button group">
-                    <button type="button" class="btn btn-outline-dark" @click="zoomIn">放大</button>
-                    <button type="button" class="btn btn-outline-dark" @click="resetZoom">重置</button>
-                    <button type="button" class="btn btn-outline-dark" @click="zoomOut">縮小</button>
-                  </div>
+
                 </div>
               </div>
             </div>
             <div class="card-body">
-              <div class="image-container">
-                <img id="image" src="images/demopaper.jpg" alt="可縮放圖片" class="zoomable-img" />
+              <div class="image-containerL">
+                <img src="images/demopaper.jpg" class="w-100" />
               </div>
 
             </div>
           </div><!-- card -->
-        </div><!-- col -->
-      </div><!-- row -->
 
-      <div class="card mt-4 mb-2 border-primary-subtle border-3">
+          <div class="card mt-4 mb-2 border-primary-subtle border-3">
         <div class="card-header bg-primary-subtle">
+
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="fs-5 fw-bold">簽辦內容</div>
+
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="">簽辦內容</div>
+            <div>
+              <select class="form-select form-select-sm">
+                <option selected disabled>選擇回覆樣板</option>
+                <option>同意辦理，請依權責續行。</option>
+                <option>所提建議可行，請參照意見修正後再行報送。</option>
+                <option>所提意見甚為妥當，請依此原則推動。</option>
+                <option>暫不宜辦理，建議先行觀察後續情勢，再行評估。</option>
+              </select>
+            </div>
+          </div>
+          <textarea class="form-control mt-2" rows="3"></textarea>
+
+          <div class="d-flex align-items-center justify-content-between my-2">
+            <div class=""></div>
+            <div>
+              <button type="button" class="btn btn-danger text-white me-1">否決</button>
+              <button type="button" class="btn btn-dark me-1">退回</button>
+              <button type="button" class="btn btn-primary me-1" data-bs-toggle="modal" data-bs-target="#customtopicbox">加簽</button>
+              <a href="/PendingReceiveViewF2" type="button" class="btn btn-primary" onclick="return confirm('是否確定送出？');">同意</a>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- card -->
+
+      <div class="card border-nonfocus mt-4 mb-2">
+        <div class="card-header bg-nonfocus">
 
           <div class="d-flex align-items-center justify-content-between">
             <div class="fs-5 fw-bold">簽辦流程</div>
             <div>
-              <button type="button" class="btn btn-sm btn-outline-dark" >修改</button>
+
             </div>
           </div>
         </div>
@@ -146,6 +173,13 @@
             <tr>
               <td>1</td>
               <td>行政總務組 主任 邱顯義 (E123)</td>
+              <td>同意辦理，請依權責續行。</td>
+              <td>2025/10/31</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>1-2</td>
+              <td>財務組 主任 黄士晉 (E151)</td>
               <td></td>
               <td></td>
               <td></td>
@@ -157,167 +191,135 @@
               <td></td>
               <td></td>
             </tr>
+            <!--<tr>
+              <td colspan="5" class="fw-bold">會辦</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>技術部 經理 何儀瑜 (E239)</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="5" class="fw-bold">陳</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>副總經理 陳仁豪 (E104)</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>-->
             </tbody>
           </table>
         </div>
       </div><!-- card -->
 
-      <div :class="getCardClasses(switchA)">
-        <div :class="getHeaderClasses(switchA)">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="switchCheckA" v-model="switchA">
-            <label class="form-check-label" for="switchCheckA">會辦</label>
-          </div>
-        </div>
-        <div class="card-body p-0">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-              <input class="form-check-input me-1" type="checkbox" value="" id="firstCheckbox" :disabled="!switchA">
-              <label class="form-check-label" for="firstCheckbox">行政管理部-主任-經理</label>
-            </li>
-            <li class="list-group-item">
-              <input class="form-check-input me-1" type="checkbox" value="" id="secondCheckbox" :disabled="!switchA">
-              <label class="form-check-label" for="secondCheckbox">財務部-主任-經理</label>
-            </li>
-            <li class="list-group-item">
-              <input class="form-check-input me-1" type="checkbox" value="" id="thirdCheckbox" :disabled="!switchA">
-              <label class="form-check-label" for="thirdCheckbox">技術部-經理</label>
-            </li>
-          </ul>
-        </div>
-      </div><!-- card -->
+     
 
-      <div :class="getCardClasses(switchB)">
-        <div :class="getHeaderClasses(switchB)">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="switchCheckB" v-model="switchB">
-            <label class="form-check-label" for="switchCheckB">陳</label>
-          </div>
-        </div>
-        <div class="card-body p-0">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-              <input class="form-check-input me-1" type="radio" value="" id="firstRadio" :disabled="!switchB">
-              <label class="form-check-label" for="firstRadio">副總經理</label>
-            </li>
-            <li class="list-group-item">
-              <input class="form-check-input me-1" type="radio" value="" id="secondRadio" :disabled="!switchB">
-              <label class="form-check-label" for="secondRadio">副總經理-總經理</label>
-            </li>
-            <li class="list-group-item">
-              <input class="form-check-input me-1" type="radio" value="" id="thirdRadio" :disabled="!switchB">
-              <label class="form-check-label" for="thirdRadio">副總經理-總經理-董事長</label>
-            </li>
-          </ul>
-        </div>
-      </div><!-- card -->
-
-      <div :class="getCardClasses(switchC)">
-        <div :class="getHeaderClasses(switchC)">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="switchCheckC" v-model="switchC">
-            <label class="form-check-label" for="switchCheckC">費用核銷</label>
-          </div>
-        </div>
-        <div class="card-body">
-          <table class="table small">
-            <thead class="border-bottom border-dark-subtle">
-            <tr>
-              <th>站點</th>
-              <th>簽核者</th>
-              <th>簽核意見</th>
-              <th>簽核時間</th>
-              <th>簽核狀態</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td></td>
-              <td>財務組 陳欣婷 (E326)</td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>財務組 主任 鐘平仁 (E120)</td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-      </div><!-- card -->
-
-      <div class="d-flex align-items-center justify-content-between my-2">
-        <div class=""></div>
-        <div>
-          <button type="button" class="btn btn-outline-primary me-1">重設</button>
-          <button type="button" class="btn btn-primary me-1">加簽</button>
-          <a href="/PendingReceiveViewO2" type="button" class="btn btn-primary" onclick="return confirm('是否確定送出？');">送出</a>
-        </div>
-      </div>
+      
 
 
 
 
     </div><!-- content-wrapper -->
   </div>
+
+<div class="modal fade" id="customtopicbox" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">加簽</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+
+ <div class="ochiform TitleLength05">
+    <div class="row mt-1 flex-md-nowrap align-items-center OchiRow">
+      <!-- form item start -->
+      <div class="col-md-auto TitleSetWidth text-md-end"><label class="form-label" for="formA100">加簽類型</label></div>
+      <div class="col-md-auto flex-grow-1">
+        <select class="form-select form-select-sm">
+          <option selected disabled>選擇加簽類型</option>
+          <option>會簽</option>
+          <option>並簽</option>
+          </select>
+      </div>
+      <!-- form item end -->
+    </div><!-- row -->
+    <div class="row mt-1 flex-md-nowrap align-items-center OchiRow">
+      <!-- form item start -->
+      <div class="col-md-auto TitleSetWidth text-md-end"><label class="form-label" for="formA101">加簽人員</label></div>
+      <div class="col-md-auto flex-grow-1">
+        <div id="html1">
+  <ul>
+    <li>行管部
+      <ul>
+        <li>連家玟</li>
+        <li>馮展榮</li>
+        <li>李麗敏</li>
+        <li>全嘉傑</li>
+        <li>辛文暄</li>
+      </ul>
+    </li>
+    <li>財務部
+      <ul>
+        <li>黄士晉</li>
+        <li>賈宜德</li>
+        <li>蔣智安</li>
+        <li>包唯中</li>
+      </ul>
+    </li>
+    <li>技術部
+      <ul>
+        <li>王芷茵</li>
+        <li>侯韶恩</li>
+        <li>蕭昊天</li>
+      </ul>
+    </li>
+  </ul>
+</div>
+      </div>
+      <!-- form item end -->
+    </div><!-- row -->
+</div>
+
+
+
+
+      </div><!-- modal-body -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">取消</button>
+        <a href="/PendingReceiveViewM2" type="button" class="btn btn-outline-dark" onclick="return confirm('是否確定送出？');">送出</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 </template>
 
 <script>
+import $ from 'jquery';
+import 'jstree/dist/jstree.min.js';
+import 'jstree/dist/themes/default/style.min.css';
+import * as bootstrap from 'bootstrap';
 export default {
-  data() {
-    return {
-      scale: 0.38, // 初始縮放比例
-      switchA: false,
-      switchB: false,
-      switchC: false
-    };
-  },
+ 
   mounted() {
-    // 組件掛載後初始化
-    this.updateZoom();
-  },
-  methods: {
-    zoomIn() {
-      this.scale += 0.2;
-      this.updateZoom();
-    },
-    zoomOut() {
-      if (this.scale > 0.4) {
-        this.scale -= 0.2;
-        this.updateZoom();
-      }
-    },
-    resetZoom() {
-      this.scale = 0.8;
-      this.updateZoom();
-    },
-    updateZoom() {
-      const image = document.getElementById('image');
-      const container = document.querySelector('.image-container');
-      
-      if (image && container) {
-        image.style.transform = `scale(${this.scale})`;
-        // 僅水平置中
-        container.scrollTop = 0;
-        container.scrollLeft = (image.offsetWidth * this.scale - container.clientWidth) / 2;
-      }
-    },
-    getCardClasses(switchState) {
-      return {
-        'card mt-4 mb-2': true,
-        'border-primary-subtle border-3': switchState
-      };
-    },
-    getHeaderClasses(switchState) {
-      return {
-        'card-header fs-5 fw-bold': true,
-        'bg-primary-subtle': switchState
-      };
-    }
+    $('#html1').jstree({
+        core: {
+        themes: {
+          icons: false
+        }
+      },
+      plugins: ['checkbox'],
+    });
+
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+[...tooltipTriggerList].forEach(el => new bootstrap.Tooltip(el));
+
   }
 };
 </script>
