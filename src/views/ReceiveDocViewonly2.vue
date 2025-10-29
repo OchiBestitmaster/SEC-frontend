@@ -2,7 +2,7 @@
   <div class="container-ochi w-large-ochi mt-2">
 
     <div class="filetitlewrapper mt-1">
-      <span class="filetitle"><h2>收文檢視</h2></span>
+      <span class="filetitle"><h2>公文檢視</h2></span>
       <span class="itemright"></span>
     </div>
   
@@ -105,42 +105,6 @@
             </div>
           </div><!-- card -->
 
-          <div class="card mt-4 mb-2 border-primary-subtle border-3">
-        <div class="card-header bg-primary-subtle">
-
-          <div class="d-flex align-items-center justify-content-between">
-            <div class="fs-5 fw-bold">簽辦內容</div>
-
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="d-flex align-items-center justify-content-between">
-            <div class="">簽辦內容</div>
-            <div>
-              <select class="form-select form-select-sm">
-                <option selected disabled>選擇回覆樣板</option>
-                <option>同意辦理，請依權責續行。</option>
-                <option>所提建議可行，請參照意見修正後再行報送。</option>
-                <option>所提意見甚為妥當，請依此原則推動。</option>
-                <option>暫不宜辦理，建議先行觀察後續情勢，再行評估。</option>
-              </select>
-            </div>
-          </div>
-          <textarea class="form-control mt-2" rows="3"></textarea>
-
-          <div class="d-flex align-items-center justify-content-between my-2">
-            <div class=""></div>
-            <div>
-              <button type="button" class="btn btn-danger text-white me-1">否決</button>
-              <button type="button" class="btn btn-dark me-1">退回</button>
-              <button type="button" class="btn btn-primary me-1" data-bs-toggle="modal" data-bs-target="#customtopicbox">加簽</button>
-              <a href="/PendingReceiveViewF2" type="button" class="btn btn-primary" onclick="return confirm('是否確定送出？');">同意</a>
-            </div>
-          </div>
-
-        </div>
-      </div><!-- card -->
-
       <div class="card border-nonfocus mt-4 mb-2">
         <div class="card-header bg-nonfocus">
 
@@ -180,37 +144,31 @@
             <tr>
               <td>1-2</td>
               <td>財務組 主任 黄士晉 (E151)</td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <td>所提意見甚為妥當，請依此原則推動。</td>
+              <td>2025/10/31</td>
+              <td>同意</td>
             </tr>
             <tr>
               <td>2</td>
               <td>行政總務組 經理 王正義 (E112)</td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <td>所提建議可行，請參照意見修正後再行報送。</td>
+              <td>2025/10/31</td>
+              <td><span class=" text-danger">退回</span></td>
             </tr>
-            <!--<tr>
-              <td colspan="5" class="fw-bold">會辦</td>
+            <tr>
+              <td>2-1</td>
+              <td>行政總務組 陳怡君 (E175)</td>
+              <td>已修正內容</td>
+              <td>2025/10/31</td>
+              <td>跳關送簽</td>
             </tr>
             <tr>
               <td>3</td>
-              <td>技術部 經理 何儀瑜 (E239)</td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <td>行政總務組 經理 王正義 (E112)</td>
+              <td>所提意見甚為妥當，請依此原則推動。</td>
+              <td>2025/10/31</td>
+              <td>同意</td>
             </tr>
-            <tr>
-              <td colspan="5" class="fw-bold">陳</td>
-            </tr>
-            <tr>
-              <td>4</td>
-              <td>副總經理 陳仁豪 (E104)</td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>-->
             </tbody>
           </table>
         </div>
@@ -218,110 +176,23 @@
 
      
 
-      
+      <div class="d-flex align-items-center justify-content-between my-2">
+        <div class=""></div>
+        <div>
+          <button type="button" class="btn btn-outline-primary me-1">列印</button>
+          <button type="button" class="btn btn-outline-primary me-1">關閉</button>
+        </div>
+      </div>
 
 
 
 
     </div><!-- content-wrapper -->
   </div>
-
-<div class="modal fade" id="customtopicbox" tabindex="-1">
-  <div class="modal-dialog modal-sm modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">加簽</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-
-
- <div class="ochiform TitleLength05">
-    <div class="row mt-1 flex-md-nowrap align-items-center OchiRow">
-      <!-- form item start -->
-      <div class="col-md-auto TitleSetWidth text-md-end"><label class="form-label" for="formA100">加簽類型</label></div>
-      <div class="col-md-auto flex-grow-1">
-        <select class="form-select form-select-sm">
-          <option selected disabled>選擇加簽類型</option>
-          <option>會簽</option>
-          <option>並簽</option>
-          </select>
-      </div>
-      <!-- form item end -->
-    </div><!-- row -->
-    <div class="row mt-1 flex-md-nowrap align-items-center OchiRow">
-      <!-- form item start -->
-      <div class="col-md-auto TitleSetWidth text-md-end"><label class="form-label" for="formA101">加簽人員</label></div>
-      <div class="col-md-auto flex-grow-1">
-        <div id="html1">
-  <ul>
-    <li>行管部
-      <ul>
-        <li>連家玟</li>
-        <li>馮展榮</li>
-        <li>李麗敏</li>
-        <li>全嘉傑</li>
-        <li>辛文暄</li>
-      </ul>
-    </li>
-    <li>財務部
-      <ul>
-        <li>黄士晉</li>
-        <li>賈宜德</li>
-        <li>蔣智安</li>
-        <li>包唯中</li>
-      </ul>
-    </li>
-    <li>技術部
-      <ul>
-        <li>王芷茵</li>
-        <li>侯韶恩</li>
-        <li>蕭昊天</li>
-      </ul>
-    </li>
-  </ul>
-</div>
-      </div>
-      <!-- form item end -->
-    </div><!-- row -->
-</div>
-
-
-
-
-      </div><!-- modal-body -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">取消</button>
-        <a href="/PendingReceiveViewM2" type="button" class="btn btn-outline-dark" onclick="return confirm('是否確定送出？');">送出</a>
-      </div>
-    </div>
-  </div>
-</div>
-
 </template>
 
 <script>
-import $ from 'jquery';
-import 'jstree/dist/jstree.min.js';
-import 'jstree/dist/themes/default/style.min.css';
-import * as bootstrap from 'bootstrap';
-export default {
- 
-  mounted() {
-    $('#html1').jstree({
-        core: {
-        themes: {
-          icons: false
-        }
-      },
-      plugins: ['checkbox'],
-    });
 
-  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-[...tooltipTriggerList].forEach(el => new bootstrap.Tooltip(el));
-
-  }
-};
 </script>
 
 <style scoped>

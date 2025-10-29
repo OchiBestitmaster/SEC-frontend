@@ -132,7 +132,7 @@
             <div class=""></div>
             <div>
               <button type="button" class="btn btn-danger text-white me-1">否決</button>
-              <button type="button" class="btn btn-dark me-1">退回</button>
+              <button type="button" class="btn btn-dark me-1" data-bs-toggle="modal" data-bs-target="#backbox">退回</button>
               <button type="button" class="btn btn-primary me-1" data-bs-toggle="modal" data-bs-target="#customtopicbox">加簽</button>
               <a href="/PendingReceiveViewF2" type="button" class="btn btn-primary" onclick="return confirm('是否確定送出？');">同意</a>
             </div>
@@ -180,9 +180,9 @@
             <tr>
               <td>1-2</td>
               <td>財務組 主任 黄士晉 (E151)</td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <td>所提意見甚為妥當，請依此原則推動。</td>
+              <td>2025/10/31</td>
+              <td>同意</td>
             </tr>
             <tr>
               <td>2</td>
@@ -298,6 +298,42 @@
   </div>
 </div>
 
+<div class="modal fade" id="backbox" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">退回</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+
+ <div class="ochiform TitleLength04">
+    <div class="row mt-1 flex-md-nowrap align-items-center OchiRow">
+      <!-- form item start -->
+      <div class="col-md-auto TitleSetWidth text-md-end"><label class="form-label" for="formA100">退回關卡</label></div>
+      <div class="col-md-auto flex-grow-1">
+        <select class="form-select form-select-sm">
+          <option selected disabled>選擇退回關卡</option>
+          <option>行政總務組 陳怡君 (E175)</option>
+          <option>行政總務組 主任 邱顯義 (E123)</option>
+          </select>
+      </div>
+      <!-- form item end -->
+    </div><!-- row -->
+</div>
+
+
+
+
+      </div><!-- modal-body -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">取消</button>
+        <a href="/PendingReceiveViewB2" type="button" class="btn btn-outline-dark" onclick="return confirm('是否確定送出？');">送出</a>
+      </div>
+    </div>
+  </div>
+</div>
 </template>
 
 <script>

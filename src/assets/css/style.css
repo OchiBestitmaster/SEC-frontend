@@ -205,6 +205,12 @@ body{background:#EFF5FA;}
     overflow: auto;
     margin: auto;
 }
+.image-containerL2 {
+    max-width: 1000px;
+    height: 300px;
+    overflow: auto;
+    margin: auto;
+}
 .shadowR{box-shadow: 5px 0 20px -2px rgba(99,118,133,0.2);}
 .border-nonfocus{border-color:#b2c3d1}
 .bg-nonfocus{background-color:#dae6f0;}
