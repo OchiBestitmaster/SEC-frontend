@@ -32,7 +32,7 @@
                     </div>
                   </td>
                   <td scope="row" nowrap="">
-                    <div class="muted">250900012</div>
+                    <div class="muted"><a href="/ReceiveDocViewonly" target="_blank">250900012</a></div>
                   </td>
                   <td>「綠能領域氣候服務研討會」歡迎報名參與。</td>
                   <td>台灣雷力企業聯合會TEPA</td>
@@ -48,7 +48,7 @@
                     </div>
                   </td>
                   <td scope="row">
-                    <div class="muted">250900011</div>
+                    <div class="muted"><a href="/ReceiveDocViewonly" target="_blank">250900011</a></div>
                   </td>
                   <td>淨零碳規劃管理師培訓課程</td>
                   <td>台灣空氣品質健康安全協會</td>
@@ -65,7 +65,7 @@
                     </div>
                   </td>
                   <td scope="row">
-                    <div class="muted">250900010</div>
+                    <div class="muted"><a href="/ReceiveDocViewonly" target="_blank">250900010</a></div>
                   </td>
                   <td>「關鍵基礎設施資安檢測實務經驗與關鍵分享暨工控系統資訊安全基礎說明會議」</td>
                   <td>數發部</td>

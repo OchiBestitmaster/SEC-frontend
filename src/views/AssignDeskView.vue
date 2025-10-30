@@ -17,10 +17,10 @@
                 <thead class="border-bottom border-dark-subtle">
                 <tr>
                   <th width="60">選擇</th>
-                  <th>表單編號</th>
-                  <th>主旨</th>
-                  <th>來文單位</th>
-                  <th>來文字號</th>
+                  <th class="text-nowrap">表單編號</th>
+                  <th class="text-nowrap">主旨</th>
+                  <th class="text-nowrap">來文單位</th>
+                  <th class="text-nowrap">來文字號</th>
                   <th class="text-center" width="80">狀態</th>
                 </tr>
                 </thead>
@@ -32,7 +32,7 @@
                     </div>
                   </td>
                   <td scope="row" nowrap="">
-                    <div class="muted">{{ item.id }}</div>
+                    <div class="muted"><a :href="`/ReceiveDocViewonly`" target="_blank">{{ item.id }}</a></div>
                   </td>
                   <td v-html="item.title"></td>
                   <td>{{ item.unit }}</td>
@@ -70,9 +70,9 @@
               <table class="table small" id="assignedpaper">
                 <thead class="border-bottom border-dark-subtle">
                 <tr>
-                  <th>表單編號</th>
-                  <th>主旨</th>
-                  <th>來文單位</th>
+                  <th class="text-nowrap">表單編號</th>
+                  <th class="text-nowrap">主旨</th>
+                  <th class="text-nowrap">來文單位</th>
                   <th width="60">移除</th>
                 </tr>
                 </thead>

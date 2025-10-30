@@ -35,7 +35,7 @@
               <td class="text-center"><span class=" text-danger">退回</span></td>
               <td class="text-center">
                 <div class="btn-group btn-group-sm" role="group">
-                  <a href="/ReceiveDocViewO2" type="button" class="btn btn-outline-dark">檢視</a>
+                  <a href="/ReceiveDocO2" type="button" class="btn btn-outline-dark">檢視</a>
                 
                 </div>
               </td>

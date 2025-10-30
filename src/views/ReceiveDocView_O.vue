@@ -172,15 +172,15 @@
         <div class="card-body p-0">
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
-              <input class="form-check-input me-1" type="checkbox" value="" id="firstCheckbox" :disabled="!switchA">
+              <input class="form-check-input me-1" type="checkbox" value="" id="firstCheckbox" :disabled="!switchA" v-model="checkbox1">
               <label class="form-check-label" for="firstCheckbox">行政管理部-主任-經理</label>
             </li>
             <li class="list-group-item">
-              <input class="form-check-input me-1" type="checkbox" value="" id="secondCheckbox" :disabled="!switchA">
+              <input class="form-check-input me-1" type="checkbox" value="" id="secondCheckbox" :disabled="!switchA" v-model="checkbox2">
               <label class="form-check-label" for="secondCheckbox">財務部-主任-經理</label>
             </li>
             <li class="list-group-item">
-              <input class="form-check-input me-1" type="checkbox" value="" id="thirdCheckbox" :disabled="!switchA">
+              <input class="form-check-input me-1" type="checkbox" value="" id="thirdCheckbox" :disabled="!switchA" v-model="checkbox3">
               <label class="form-check-label" for="thirdCheckbox">技術部-經理</label>
             </li>
           </ul>
@@ -197,15 +197,15 @@
         <div class="card-body p-0">
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
-              <input class="form-check-input me-1" type="radio" value="" id="firstRadio" :disabled="!switchB">
+              <input class="form-check-input me-1" type="radio" value="vp" id="firstRadio" name="toboss" :disabled="!switchB" v-model="tobossSelection">
               <label class="form-check-label" for="firstRadio">副總經理</label>
             </li>
             <li class="list-group-item">
-              <input class="form-check-input me-1" type="radio" value="" id="secondRadio" :disabled="!switchB">
+              <input class="form-check-input me-1" type="radio" value="vp-gm" id="secondRadio" name="toboss" :disabled="!switchB" v-model="tobossSelection">
               <label class="form-check-label" for="secondRadio">副總經理-總經理</label>
             </li>
             <li class="list-group-item">
-              <input class="form-check-input me-1" type="radio" value="" id="thirdRadio" :disabled="!switchB">
+              <input class="form-check-input me-1" type="radio" value="vp-gm-chairman" id="thirdRadio" name="toboss" :disabled="!switchB" v-model="tobossSelection">
               <label class="form-check-label" for="thirdRadio">副總經理-總經理-董事長</label>
             </li>
           </ul>
@@ -273,12 +273,30 @@ export default {
       scale: 0.38, // 初始縮放比例
       switchA: false,
       switchB: false,
-      switchC: false
+      switchC: false,
+      checkbox1: false,
+      checkbox2: false,
+      checkbox3: false,
+      tobossSelection: ''
     };
   },
   mounted() {
     // 組件掛載後初始化
     this.updateZoom();
+  },
+  watch: {
+    switchA(newVal) {
+      if (!newVal) {
+        this.checkbox1 = false;
+        this.checkbox2 = false;
+        this.checkbox3 = false;
+      }
+    },
+    switchB(newVal) {
+      if (!newVal) {
+        this.tobossSelection = '';
+      }
+    }
   },
   methods: {
     zoomIn() {

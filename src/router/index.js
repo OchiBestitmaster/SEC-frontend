@@ -183,6 +183,18 @@ const routes = [
     ],
   },
   {
+    path: '/PendingReceiveViewO6',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'PendingReceiveViewO6',
+        component: PendingReceiveViewM2,
+        meta: { pageName: '承辦人', sideMenu: 'SideMenuO2' }
+      },
+    ],
+  },
+  {
     path: '/ReceiveDocO',
     component: MainView,
     children: [

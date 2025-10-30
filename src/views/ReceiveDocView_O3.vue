@@ -273,7 +273,7 @@
       </div><!-- modal-body -->
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">取消</button>
-        <a href="/PendingReceiveViewO2" type="button" class="btn btn-outline-dark" onclick="return confirm('是否確定送出？');">確定</a>
+        <a href="/PendingReceiveViewO6" type="button" class="btn btn-outline-dark" onclick="return confirm('是否確定送出？');">確定</a>
       </div>
     </div>
   </div>
