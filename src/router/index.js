@@ -19,6 +19,8 @@ import ReceiveDocViewB from "../views/ReceiveDocView_B.vue";
 import ReceiveDocViewB2 from "../views/ReceiveDocView_B2.vue";
 import ReceiveSignView from "../views/ReceiveSignView.vue";
 import ReceiveListView from "../views/ReceiveListView.vue";
+import ReceiveDocViewD from "../views/ReceiveDocView_D.vue";
+import ReceiveDocViewD2 from "../views/ReceiveDocView_D2.vue";
 
 import HomeViewR from '../views/HomeView_R.vue';
 import HomeViewO from '../views/HomeView_O.vue';
@@ -33,6 +35,7 @@ import PendingReceiveViewM from "../views/PendingReceiveView_M.vue";
 import PendingReceiveViewM2 from "../views/PendingReceiveView_M2.vue";
 import PendingReceiveViewF from "../views/PendingReceiveView_F.vue";
 import PendingReceiveViewB from "../views/PendingReceiveView_B.vue";
+import PendingReceiveViewD from "../views/PendingReceiveView_D.vue";
 
 const routes = [
   // 收文窗口
@@ -490,7 +493,55 @@ const routes = [
       },
     ],
   },
- 
+  // 簡易簽辦單route
+  {
+    path: '/HomeD',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'HomeViewD',
+        component: HomeViewM,
+        meta: { pageName: '承辦人', sideMenu: 'SideMenuD' }
+      },
+    ],
+  },
+  {
+    path: '/PendingReceiveViewD',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'PendingReceiveViewD',
+        component: PendingReceiveViewD,
+        meta: { pageName: '承辦人', sideMenu: 'SideMenuD' }
+      },
+    ],
+  },
+  {
+    path: '/ReceiveDocD',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'ReceiveDocViewD',
+        component: ReceiveDocViewD,
+        meta: { pageName: '承辦人', sideMenu: 'SideMenuD' }
+      },
+    ],
+  },
+ {
+    path: '/ReceiveDocD2',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'ReceiveDocViewD2',
+        component: ReceiveDocViewD2,
+        meta: { pageName: '承辦人', sideMenu: 'SideMenuD' }
+      },
+    ],
+  },
 ]
 
 const router = createRouter({
