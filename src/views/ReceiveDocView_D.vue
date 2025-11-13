@@ -99,9 +99,8 @@
       <div class="d-flex align-items-center justify-content-between my-2">
         <div class=""></div>
         <div>
-          <button type="button" class="btn btn-outline-primary me-1">重設</button>
           <button type="button" class="btn btn-primary me-1" data-bs-toggle="modal" data-bs-target="#customtopicbox">加簽</button>
-          <a href="/PendingReceiveViewO2" type="button" class="btn btn-primary" onclick="return confirm('是否確定送出？');">送出</a>
+          <a href="#" type="button" class="btn btn-primary" onclick="return confirm('是否確定送出？');">送出</a>
         </div>
       </div>
 
@@ -127,10 +126,10 @@
       <!-- form item start -->
       <div class="col-md-auto TitleSetWidth text-md-end"><label class="form-label" for="formA100">加簽類型</label></div>
       <div class="col-md-auto flex-grow-1">
-        <select class="form-select form-select-sm">
+        <select class="form-select form-select-sm" id="addsigntype">
           <option selected disabled>選擇加簽類型</option>
-          <option>會簽</option>
-          <option>串簽</option>
+          <option value="1">會簽</option>
+          <option value="2">串簽</option>
           </select>
       </div>
       <!-- form item end -->
@@ -178,7 +177,7 @@
       </div><!-- modal-body -->
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">取消</button>
-        <a href="/PendingReceiveViewM2" type="button" class="btn btn-outline-dark" onclick="return confirm('是否確定送出？');">送出</a>
+        <a href="#" type="button" class="btn btn-outline-dark" onclick="return confirm('是否確定送出？');" id="formsend">送出</a>
       </div>
     </div>
   </div>
