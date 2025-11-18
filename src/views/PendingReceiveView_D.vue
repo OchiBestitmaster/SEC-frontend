@@ -25,36 +25,68 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-              <td class="align-middle">25252525</td>
-              <td class="align-middle">台灣雷力企業聯合會TEPA</td>
-              <td class="text-center align-middle">連家玟</td>
-              <td class="text-center align-middle">2025/10/31</td>
-              <td class="text-center align-middle">審核中</td>
-              <td class="text-center align-middle">
-                <div class="btn-group btn-group-sm" role="group">
-                  <a href="/ReceiveDocViewM" type="button" class="btn btn-outline-dark">檢視</a>
-                </div>
-              </td>
-            </tr>
-    </tbody>
+              <tr v-if="approvalList.length === 0">
+                <td colspan="6" class="text-center">尚無資料</td>
+              </tr>
+              <tr v-for="item in approvalList" :key="item.id">
+                <td class="align-middle">{{ item.id }}</td>
+                <td class="align-middle">{{ item.title }}</td>
+                <td class="text-center align-middle">{{ item.applicant }}</td>
+                <td class="text-center align-middle">{{ formatDate(item.date) }}</td>
+                <td class="text-center align-middle">{{ item.state }}</td>
+                <td class="text-center align-middle">
+                  <div class="btn-group btn-group-sm" role="group">
+                    <a :href="`/ReceiveDocD2/${item.id}`" class="btn btn-outline-dark">檢視</a>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
           </table>
-
-        
 
         </div>
       </div><!-- card -->
-
-
-
 
     </div><!-- content-wrapper -->
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 
 export default {
- 
+  name: 'PendingReceiveViewD',
+  data() {
+    return {
+      approvalList: []
+    };
+  },
+  mounted() {
+    this.fetchApprovalList();
+  },
+  methods: {
+    async fetchApprovalList() {
+      try {
+        const res = await axios.get('/postgrest/application_form');
+        const data = Array.isArray(res.data) ? res.data : [];
+        this.approvalList = data.map(item => ({
+          id: item.id,
+          title: item.title,
+          content: item.content,
+          state: item.state,
+          applicant: item.applicant,
+          process_instance_id: item.process_instance_id,
+          date: item.date
+        }));
+      } catch (error) {
+        console.error('Error fetching /approval_form:', error);
+      }
+    },
+    formatDate(value) {
+      if (!value) return '';
+      const d = new Date(value);
+      if (isNaN(d)) return value;
+      return d.toLocaleDateString();
+    }
+  }
 };
 </script>

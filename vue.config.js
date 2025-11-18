@@ -4,24 +4,20 @@ module.exports = defineConfig({
   devServer: {
     port: 7086,
     proxy: {
-      // 代理 OnlyOffice API 請求
-      '/web-apps': {
-        target: 'http://localhost:8043',
+      '/flowable': {
+        target: 'http://localhost:5080/flowable-rest/service',
         changeOrigin: true,
-        secure: false
+        pathRewrite: {
+          '^/flowable': ''
+        }
       },
-      // 代理文件下載請求
-      '/documents': {
-        target: 'http://localhost:4321',
+      '/postgrest': {
+        target: 'http://localhost:3000',
         changeOrigin: true,
-        secure: false
+        pathRewrite: {
+          '^/postgrest': ''
+        }
       }
-    },
-    // 允許跨域請求
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-      'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization'
     }
   }
 })

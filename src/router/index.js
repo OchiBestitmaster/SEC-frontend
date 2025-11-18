@@ -540,6 +540,13 @@ const routes = [
         component: ReceiveDocViewD2,
         meta: { pageName: '承辦人', sideMenu: 'SideMenuD' }
       },
+      // ===== Route with ID for direct access like /ReceiveDocD2/5 =====
+      {
+        path: ':id',
+        name: 'ReceiveDocViewD2Id',
+        component: ReceiveDocViewD2,
+        meta: { pageName: '承辦人', sideMenu: 'SideMenuD' }
+      },
     ],
   },
 ]

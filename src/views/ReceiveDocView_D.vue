@@ -100,7 +100,7 @@
         <div class=""></div>
         <div>
           <button type="button" class="btn btn-primary me-1" data-bs-toggle="modal" data-bs-target="#customtopicbox">加簽</button>
-          <a href="#" type="button" class="btn btn-primary" onclick="return confirm('是否確定送出？');">送出</a>
+          <a href="#" type="button" class="btn btn-primary" onclick="return confirm('是否確定送出？');" id="formsend">送出</a>
         </div>
       </div>
 
@@ -177,7 +177,7 @@
       </div><!-- modal-body -->
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">取消</button>
-        <a href="#" type="button" class="btn btn-outline-dark" onclick="return confirm('是否確定送出？');" id="formsend">送出</a>
+        <a href="#" type="button" class="btn btn-outline-dark" onclick="return confirm('是否確定送出？');">送出</a>
       </div>
     </div>
   </div>
@@ -189,16 +189,16 @@ import $ from 'jquery';
 import 'jstree/dist/jstree.min.js';
 import 'jstree/dist/themes/default/style.min.css';
 import * as bootstrap from 'bootstrap';
+import axios from 'axios';
+
 export default {
   data() {
     return {
       switchA: false,
-      switchB: false,
-      switchC: false,
       checkbox1: false,
-      checkbox2: false,
-      checkbox3: false,
-      tobossSelection: ''
+      tobossSelection: '',
+      // ===== State for form submission flow =====
+      isSubmitting: false
     };
   },
   mounted() {
@@ -214,14 +214,19 @@ export default {
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
 [...tooltipTriggerList].forEach(el => new bootstrap.Tooltip(el));
 
-    
+    // ===== Bind form submit event handler =====
+    const formSendBtn = document.getElementById('formsend');
+    if (formSendBtn) {
+      formSendBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.handleFormSubmit();
+      });
+    }
   },
   watch: {
     switchA(newVal) {
       if (!newVal) {
         this.checkbox1 = false;
-        this.checkbox2 = false;
-        this.checkbox3 = false;
       }
     },
     switchB(newVal) {
@@ -231,7 +236,7 @@ export default {
     }
   },
   methods: {
-  
+    // ===== UI Helper Methods =====
     getCardClasses(switchState) {
       return {
         'card mt-4 mb-2': true,
@@ -243,6 +248,306 @@ export default {
         'card-header fs-5 fw-bold': true,
         'bg-primary-subtle': switchState
       };
+    },
+
+    // ===== API Authentication =====
+    /**
+     * Generate Basic Auth header for Flowable REST API
+     * @returns {Object} Headers with Authorization
+     */
+    getBasicAuthHeader() {
+      const credentials = 'rest-admin:test';
+      const encoded = btoa(credentials);
+      return {
+        'Authorization': `Basic ${encoded}`,
+        'Content-Type': 'application/json'
+      };
+    },
+
+    // ===== Step 1: Main form submit handler =====
+    /**
+     * Main entry point for form submission
+     * Orchestrates the entire workflow:
+     * 1. Determine checkbox state
+     * 2. Create Flowable process instance
+     * 3. Insert form into PostgREST
+     * 4. Update process variables
+     * 5. Find ReceiveTask execution
+     * 6. Send signal to execute task
+     */
+    async handleFormSubmit() {
+      if (this.isSubmitting) {
+        console.warn('Form submission already in progress');
+        return;
+      }
+
+      this.isSubmitting = true;
+      try {
+        console.log('🔄 Starting form submission workflow...');
+
+        // ===== Step 1: Determine additional flag =====
+        const additional = this.checkbox1 ? 'yes' : 'no';
+        console.log(`✓ Step 1: Additional flag determined: ${additional}`);
+
+        // ===== Step 2: Create Flowable process instance =====
+        const processInstanceId = await this.createProcess(additional);
+        console.log(`✓ Step 2: Process instance created: ${processInstanceId}`);
+
+        // ===== Step 3: Insert application form to PostgREST =====
+        const applicationFormId = await this.insertForm(processInstanceId);
+        console.log(`✓ Step 3: Application form inserted: ${applicationFormId}`);
+
+        // ===== Step 4: Update Flowable process variables =====
+        await this.updateVariables(processInstanceId, applicationFormId);
+        console.log(`✓ Step 4: Process variables updated`);
+
+        // ===== Step 5: Find ReceiveTask execution =====
+        const jobId = await this.findReceiveTaskExecution(processInstanceId);
+        console.log(`✓ Step 5: ReceiveTask execution found: ${jobId}`);
+
+        // ===== Step 6: Send signal to execute task =====
+        await this.signalExecution(jobId);
+        console.log(`✓ Step 6: Signal sent successfully`);
+
+        console.log('✅ Form submission workflow completed successfully!');
+        alert('簽辦單已送出');
+      } catch (error) {
+        console.error('❌ Form submission workflow failed:', error);
+        alert(`提交失敗: ${error.message}`);
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+
+    // ===== Step 2: Create Flowable process instance =====
+    /**
+     * Create a new Flowable process instance with initial variables
+     * @param {string} additional - 'yes' or 'no' based on checkbox state
+     * @returns {Promise<string>} Process instance ID
+     * @throws {Error} If process creation fails
+     * 
+     * API: POST /flowable/runtime/process-instances
+     * Response format: { "id": "...", "processDefinitionId": "..." }
+     */
+    async createProcess(additional) {
+      try {
+        const url = '/flowable/runtime/process-instances';
+        const payload = {
+          processDefinitionKey: 'mainbpm',
+          variables: [
+            { name: 'rollback', value: 'no' },
+            { name: 'additional', value: additional }
+          ]
+        };
+
+        console.log(`📤 Sending POST request to ${url}`);
+        console.log(`📋 Payload:`, payload);
+
+        const response = await axios.post(url, payload, {
+          headers: this.getBasicAuthHeader()
+        });
+
+        if (!response.data || !response.data.id) {
+          throw new Error('Invalid response: missing process instance ID');
+        }
+
+        const processInstanceId = response.data.id;
+        console.log(`📥 Response received: processInstanceId = ${processInstanceId}`);
+
+        return processInstanceId;
+      } catch (error) {
+        console.error('❌ Failed to create process instance:', error);
+        throw new Error(`Process creation failed: ${error.response?.data?.message || error.message}`);
+      }
+    },
+
+    // ===== Step 3: Insert form data to PostgREST =====
+    /**
+     * Insert application form data into PostgREST database
+     * @param {string} processInstanceId - Flowable process instance ID
+     * @returns {Promise<number>} Application form ID
+     * @throws {Error} If insertion fails
+     * 
+     * API: POST /postgrest/application_form
+     * Response format: array [{ "id": ..., "title": "...", ... }]
+     * PostgREST returns array due to "Prefer: return=representation" header
+     */
+    async insertForm(processInstanceId) {
+      try {
+        const url = '/postgrest/application_form';
+        
+        // ===== Get form data from DOM =====
+        const titleElement = document.getElementById('formA1');
+        const contentElement = document.getElementById('formA2');
+        
+        const title = titleElement ? titleElement.value : '';
+        const content = contentElement ? contentElement.value : '';
+
+        if (!title || !content) {
+          throw new Error('Form fields (主旨/內容) are required');
+        }
+
+        // ===== Construct current datetime string =====
+        const now = new Date();
+        const dateString = now.toLocaleString('zh-TW', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        }).replace(/\//g, '/');
+
+        const payload = {
+          title: title,
+          content: content,
+          state: '審核中',
+          applicant: '承辦人',
+          date: dateString,
+          process_instance_id: processInstanceId
+        };
+
+        console.log(`📤 Sending POST request to ${url}`);
+        console.log(`📋 Payload:`, payload);
+
+        const response = await axios.post(url, payload, {
+          headers: {
+            'Prefer': 'return=representation',
+            'Content-Type': 'application/json'
+          }
+        });
+
+        // ===== Extract ID from response array =====
+        if (!Array.isArray(response.data) || response.data.length === 0) {
+          throw new Error('Invalid response: missing form data in array');
+        }
+
+        const applicationFormId = response.data[0].id;
+        console.log(`📥 Response received: applicationFormId = ${applicationFormId}`);
+        console.log(`📥 Returned form data:`, response.data[0]);
+
+        return applicationFormId;
+      } catch (error) {
+        console.error('❌ Failed to insert application form:', error);
+        throw new Error(`Form insertion failed: ${error.response?.data?.message || error.message}`);
+      }
+    },
+
+    // ===== Step 4: Update Flowable process variables =====
+    /**
+     * Update process instance variables with form reference IDs
+     * @param {string} processInstanceId - Flowable process instance ID
+     * @param {number} applicationFormId - PostgREST application form ID
+     * @throws {Error} If update fails
+     * 
+     * API: PUT /flowable/runtime/process-instances/<processInstanceId>/variables
+     * Body format: array of variable objects
+     */
+    async updateVariables(processInstanceId, applicationFormId) {
+      try {
+        const url = `/flowable/runtime/process-instances/${processInstanceId}/variables`;
+        const payload = [
+          { name: 'processInstanceId', value: processInstanceId },
+          { name: 'application_form_id', value: applicationFormId }
+        ];
+
+        console.log(`📤 Sending PUT request to ${url}`);
+        console.log(`📋 Payload:`, payload);
+
+        const response = await axios.put(url, payload, {
+          headers: this.getBasicAuthHeader()
+        });
+
+        console.log(`📥 Variables updated successfully`);
+        console.log(`📥 Response:`, response.data);
+      } catch (error) {
+        console.error('❌ Failed to update process variables:', error);
+        throw new Error(`Variable update failed: ${error.response?.data?.message || error.message}`);
+      }
+    },
+
+    // ===== Step 5: Find ReceiveTask execution =====
+    /**
+     * Query Flowable for executions and find the ReceiveTask_8 job
+     * @param {string} processInstanceId - Flowable process instance ID
+     * @returns {Promise<string>} Execution ID of ReceiveTask_8
+     * @throws {Error} If ReceiveTask_8 not found
+     * 
+     * API: GET /flowable/runtime/executions?processInstanceId=<id>
+     * Response format:
+     * {
+     *   "data": [
+     *     { "id": "...", "activityId": null },
+     *     { "id": "...", "activityId": "ReceiveTask_8" },
+     *     ...
+     *   ]
+     * }
+     */
+    async findReceiveTaskExecution(processInstanceId) {
+      try {
+        const url = '/flowable/runtime/executions';
+        
+        console.log(`📤 Sending GET request to ${url}`);
+        console.log(`📋 Query params: processInstanceId = ${processInstanceId}`);
+
+        const response = await axios.get(url, {
+          params: { processInstanceId: processInstanceId },
+          headers: this.getBasicAuthHeader()
+        });
+
+        // ===== Extract execution list =====
+        const executionList = response.data.data || response.data;
+        console.log(`📥 Response received:`, response.data);
+        console.log(`📥 Execution list:`, executionList);
+
+        // ===== Find ReceiveTask_8 =====
+        const receiveTaskExecution = executionList.find(
+          e => e.activityId === 'ReceiveTask_8'
+        );
+
+        if (!receiveTaskExecution) {
+          throw new Error('ReceiveTask_8 not found in execution list');
+        }
+
+        const jobId = receiveTaskExecution.id;
+        console.log(`✓ Found ReceiveTask_8 execution: ${jobId}`);
+
+        return jobId;
+      } catch (error) {
+        console.error('❌ Failed to find ReceiveTask execution:', error);
+        throw new Error(`Execution search failed: ${error.response?.data?.message || error.message}`);
+      }
+    },
+
+    // ===== Step 6: Send signal to execution =====
+    /**
+     * Send a signal action to execute the ReceiveTask
+     * @param {string} jobId - Execution ID of ReceiveTask_8
+     * @throws {Error} If signal fails
+     * 
+     * API: PUT /flowable/runtime/executions/<jobId>
+     * Body: { "action": "signal" }
+     */
+    async signalExecution(jobId) {
+      try {
+        const url = `/flowable/runtime/executions/${jobId}`;
+        const payload = {
+          action: 'signal'
+        };
+
+        console.log(`📤 Sending PUT request to ${url}`);
+        console.log(`📋 Payload:`, payload);
+
+        const response = await axios.put(url, payload, {
+          headers: this.getBasicAuthHeader()
+        });
+
+        console.log(`📥 Signal sent successfully`);
+        console.log(`📥 Response:`, response.data);
+      } catch (error) {
+        console.error('❌ Failed to send signal:', error);
+        throw new Error(`Signal execution failed: ${error.response?.data?.message || error.message}`);
+      }
     }
   }
 };
@@ -251,3 +556,100 @@ export default {
 <style scoped>
 
 </style>
+
+<!-- 
+  ===============================================
+  CONTEXT FOR FUTURE DEVELOPMENT
+  ===============================================
+  
+  【本流程使用的 API 清單】
+  
+  1. Flowable REST API (需 Basic Auth: rest-admin/test)
+     - POST   /flowable/runtime/process-instances
+       建立流程實例，初始化 rollback 和 additional 變數
+       
+     - PUT    /flowable/runtime/process-instances/<processInstanceId>/variables
+       更新流程變數 (processInstanceId, application_form_id)
+       
+     - GET    /flowable/runtime/executions?processInstanceId=<id>
+       查詢特定流程實例的所有 execution，尋找 ReceiveTask_8
+       
+     - PUT    /flowable/runtime/executions/<jobId>
+       向 execution 發送 signal 動作，觸發流程進行
+  
+  2. PostgREST API (無需驗證，但需設置特定 header)
+     - POST   /postgrest/application_form
+       新增簽辦表單記錄
+       Header: "Prefer: return=representation" (讓 PostgREST 返回插入的資料)
+       Response: 陣列格式 [{ "id": ..., "title": ..., ... }]
+  
+  【Flowable REST 結構邏輯摘要】
+  
+  - 流程實例 (Process Instance)：代表一個業務流程的執行實例，由 processDefinitionKey 定義
+  - 執行單位 (Execution)：流程中的執行節點，每個執行單位有 activityId 標示目前所在活動
+  - 變數 (Variables)：流程實例或執行單位所持有的資料，可在各節點間傳遞
+  - Signal (訊號)：用來觸發流程推進到下一個節點
+  
+  關鍵點：
+  * 建立流程後會自動到達第一個接收任務節點 (ReceiveTask_8)
+  * 需找到該節點的 execution 才能發送 signal
+  * signal 觸發後流程推進，可能進入下一個流程節點
+  
+  【PostgREST 的回傳特性】
+  
+  - 當設置 "Prefer: return=representation" header 時，POST 響應為陣列格式
+  - 必須取 response.data[0] 來獲取新插入的記錄
+  - 若未設置此 header，POST 響應可能僅為 HTTP 201 無主體
+  - 用 response.data[0].id 來提取新記錄的 ID
+  
+  【Proxy 使用方式】
+  
+  根據 vue.config.js 配置：
+  
+  - /flowable/* 請求會被代理到 http://localhost:5080/flowable-rest/service
+    前端程式碼：axios.get('/flowable/runtime/process-instances')
+    實際請求：GET http://localhost:5080/flowable-rest/service/runtime/process-instances
+    
+  - /postgrest/* 請求會被代理到 http://localhost:3000
+    前端程式碼：axios.post('/postgrest/application_form')
+    實際請求：POST http://localhost:3000/application_form
+  
+  特別注意：proxy 配置自動移除路徑前綴 (pathRewrite)，勿重複加入
+  
+  【流程節點擴充指南】
+  
+  本檔案目前實現 D 型簽辦的完整流程。如需添加其他流程節點或簽辦類型：
+  
+  1. 建立新的 view 檔案 (例如 ReceiveDocView_O.vue)，複製本結構
+  2. 修改 processDefinitionKey 若需要不同的流程定義
+  3. 在 findReceiveTaskExecution 中調整查找的 activityId
+     - 替換 'ReceiveTask_8' 為新的節點 ID
+  4. 若需多個檢查點，可在 mounted() 中綁定多個按鈕事件
+  5. 若需異步驗證，在 handleFormSubmit 前添加驗證 methods
+  
+  【Copilot 擴充時應延續的風格】
+  
+  命名規範：
+  - 方法名稱用駝峰式 (camelCase)，且應以動作開頭 (handle/get/create/insert/update/find/signal)
+  - 變數名稱清晰易讀，避免縮寫 (processInstanceId 而非 pid)
+  - 常數用全大寫 (PROCESS_KEY = 'mainbpm')
+  
+  程式碼風格：
+  - 使用 async/await，不用 .then()
+  - 所有 API 呼叫用 try/catch，詳細記錄 console.log
+  - 每個 method 上方保留詳細註解說明用途、API 路由、回傳格式
+  - 使用區塊註解標示邏輯步驟 (===== Step X: ... =====)
+  - 保持模組化，新增功能應為獨立 methods，不覆蓋現有方法
+  
+  API 呼叫模式：
+  - Flowable 需 Basic Auth，由 getBasicAuthHeader() 提供
+  - PostgREST 根據需求決定 headers (Prefer/Content-Type)
+  - 所有錯誤訊息應包含 API 路由和詳細錯誤內容
+  
+  測試建議：
+  - 在瀏覽器開發者工具 Console 監控 console.log 輸出
+  - 檢查 Network 標籤確認 HTTP 請求和回應
+  - 逐步驗證每個 API 呼叫是否成功
+  
+  ===============================================
+-->
