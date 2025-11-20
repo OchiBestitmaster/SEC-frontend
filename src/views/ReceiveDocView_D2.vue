@@ -106,10 +106,10 @@
       <!-- form item start -->
       <div class="col-md-auto TitleSetWidth text-md-end"><label class="form-label" for="formA100">加簽類型</label></div>
       <div class="col-md-auto flex-grow-1">
-        <select class="form-select form-select-sm">
+        <select class="form-select form-select-sm" id="addsigntype">
           <option selected disabled>選擇加簽類型</option>
-          <option>會簽</option>
-          <option>串簽</option>
+          <option value="1">會簽</option>
+          <option value="2">串簽</option>
           </select>
       </div>
       <!-- form item end -->
@@ -433,14 +433,35 @@ mounted() {
     },
 
     async handleApprove() {
-      // 當「加簽區塊」未勾選時，執行 Step 1 → Step 3
-      if (this.switchA) {
-        console.warn('[ReceiveDocView_D2] handleApprove: 加簽功能開發中');
-        return;
-      }
+      // 處理加簽模式（若使用者勾選了加簽區塊）
+      let addsigntype = null;
+      let signlist = null;
+      // 使用組件內的 additional 變數概念；若沒有，根據 switchA 推論
+      const additional = this.switchA ? 'yes' : 'no';
 
       this.isSubmitting = true;
       try {
+        if (this.switchA) {
+          try {
+            const sel = document.getElementById('addsigntype');
+            addsigntype = sel ? sel.value : null;
+          } catch (err) {
+            console.warn('[ReceiveDocView_D2] 無法取得 addsigntype:', err);
+            addsigntype = null;
+          }
+
+          try {
+            const checkedNodes = $('#html1').jstree('get_checked', true) || [];
+            signlist = Array.isArray(checkedNodes) ? checkedNodes.map(n => n.text) : [];
+          } catch (err) {
+            console.warn('[ReceiveDocView_D2] 取得 jstree checked nodes 失敗:', err);
+            signlist = [];
+          }
+
+          console.log('[ReceiveDocView_D2] 加簽模式：', { addsigntype, signlist, additional });
+        }
+
+        // ===== Step 1：PATCH 更新 PostgREST approval_form =====
         // ===== Step 1：PATCH 更新 PostgREST approval_form =====
         const approvalId = this.selectedApproval && this.selectedApproval.id ? this.selectedApproval.id : null;
         if (!approvalId) {
@@ -487,6 +508,13 @@ mounted() {
           '會辦': 'ReceiveTask_39',
         };
 
+        // 若為加簽模式，新增加簽對應事件
+        if (this.switchA) {
+          activityMap['主任加簽'] = 'IntermediateMessageEventBoundary_20';
+          activityMap['經理加簽'] = 'IntermediateMessageEventBoundary_28';
+          activityMap['會辦加簽'] = 'IntermediateMessageEventBoundary_43';
+        }
+
         // 當簽核者非「主任」「經理」「會辦」時，使用 ReceiveTask_1，且 processInstanceId 改用 approval_form 的 process_instance_id
         let targetActivityId = activityMap[signerRole];
         let processInstanceToQuery = parentProcessInstanceId;
@@ -519,6 +547,13 @@ mounted() {
           : [];
         console.log('[ReceiveDocView_D2] Step 2: Flowable response', executionData);
 
+        // 如果為加簽模式，且簽核者為主任/經理/會辦，改用加簽對應的 activityId
+        if (this.switchA && signerRole) {
+          if (signerRole === '主任') targetActivityId = activityMap['主任加簽'] || targetActivityId;
+          if (signerRole === '經理') targetActivityId = activityMap['經理加簽'] || targetActivityId;
+          if (signerRole === '會辦') targetActivityId = activityMap['會辦加簽'] || targetActivityId;
+        }
+
         // 從 executionData 中找出符合的 execution
         const targetExecution = executionData.find(exe => exe.activityId === targetActivityId);
         if (!targetExecution) {
@@ -530,7 +565,17 @@ mounted() {
 
         // ===== Step 3：送出 Flowable Signal =====
         console.log('[ReceiveDocView_D2] Step 3: 送出 Flowable Signal', { jobId });
-        const signalBody = { action: 'signal' };
+        let signalBody = { action: 'signal' };
+        if (this.switchA) {
+          signalBody = {
+            action: 'signal',
+            variables: [
+              { name: 'signlist', value: signlist || [], type: 'json' },
+              { name: 'addsigntype', value: addsigntype }
+            ]
+          };
+        }
+
         const signalResp = await axios.put(
           `/flowable/runtime/executions/${jobId}`,
           signalBody,
