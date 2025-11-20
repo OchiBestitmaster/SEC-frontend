@@ -465,27 +465,17 @@ mounted() {
         console.log('[ReceiveDocView_D2] Step 1 response:', patchResp);
 
         // ===== Step 2：查詢 Flowable Execution =====
-        const processInstanceId = this.applicationForm && this.applicationForm.process_instance_id 
-          ? this.applicationForm.process_instance_id 
+        // 先取得 applicationForm 的 processInstanceId（父流程）
+        const parentProcessInstanceId = this.applicationForm && this.applicationForm.process_instance_id
+          ? this.applicationForm.process_instance_id
           : null;
-        if (!processInstanceId) {
-          throw new Error('[ReceiveDocView_D2] handleApprove: 無法取得 processInstanceId');
+        if (!parentProcessInstanceId) {
+          throw new Error('[ReceiveDocView_D2] handleApprove: 無法取得 applicationForm.process_instance_id');
         }
 
-        console.log('[ReceiveDocView_D2] Step 2: 查詢 Flowable Execution', { processInstanceId });
-        const flowableResp = await axios.get('/flowable/runtime/executions', {
-          params: { processInstanceId },
-          auth: { username: 'rest-admin', password: 'test' },
-        });
-
-        const executionData = flowableResp && flowableResp.data && flowableResp.data.data 
-          ? flowableResp.data.data 
-          : [];
-        console.log('[ReceiveDocView_D2] Step 2: Flowable response', executionData);
-
         // 取得簽核者角色 (假設存在 selectedApproval.signatory 或相關欄位)
-        const signerRole = this.selectedApproval && this.selectedApproval.signatory 
-          ? this.selectedApproval.signatory 
+        const signerRole = this.selectedApproval && this.selectedApproval.signatory
+          ? this.selectedApproval.signatory
           : null;
         if (!signerRole) {
           throw new Error('[ReceiveDocView_D2] handleApprove: 無法取得簽核者角色');
@@ -497,10 +487,37 @@ mounted() {
           '會辦': 'ReceiveTask_39',
         };
 
-        const targetActivityId = activityMap[signerRole];
+        // 當簽核者非「主任」「經理」「會辦」時，使用 ReceiveTask_1，且 processInstanceId 改用 approval_form 的 process_instance_id
+        let targetActivityId = activityMap[signerRole];
+        let processInstanceToQuery = parentProcessInstanceId;
         if (!targetActivityId) {
-          throw new Error(`[ReceiveDocView_D2] handleApprove: 未知的簽核角色 "${signerRole}"`);
+          console.log(`[ReceiveDocView_D2] signerRole "${signerRole}" is not a special role; falling back to ReceiveTask_1`);
+          targetActivityId = 'ReceiveTask_1';
+
+          // 嘗試從 approval_form (selectedApproval) 取得 process_instance_id（若欄位名稱不同，先嘗試 common candidate keys）
+          const approvalProcessInstanceId = this.selectedApproval && (
+            this.selectedApproval.process_instance_id || this.selectedApproval.process_instance_dad_id || this.selectedApproval.process_instance
+          ) ? (this.selectedApproval.process_instance_id || this.selectedApproval.process_instance_dad_id || this.selectedApproval.process_instance) : null;
+
+          if (approvalProcessInstanceId) {
+            processInstanceToQuery = approvalProcessInstanceId;
+            console.log('[ReceiveDocView_D2] Using approval_form.process_instance_id for execution query:', processInstanceToQuery);
+          } else {
+            console.log('[ReceiveDocView_D2] approval_form.process_instance_id not found; using applicationForm.process_instance_id:', processInstanceToQuery);
+          }
         }
+
+        // 現在以選定的 processInstanceToQuery 查詢 executions
+        console.log('[ReceiveDocView_D2] Step 2: 查詢 Flowable Execution', { processInstanceToQuery });
+        const flowableResp = await axios.get('/flowable/runtime/executions', {
+          params: { processInstanceId: processInstanceToQuery },
+          auth: { username: 'rest-admin', password: 'test' },
+        });
+
+        const executionData = flowableResp && flowableResp.data && flowableResp.data.data
+          ? flowableResp.data.data
+          : [];
+        console.log('[ReceiveDocView_D2] Step 2: Flowable response', executionData);
 
         // 從 executionData 中找出符合的 execution
         const targetExecution = executionData.find(exe => exe.activityId === targetActivityId);

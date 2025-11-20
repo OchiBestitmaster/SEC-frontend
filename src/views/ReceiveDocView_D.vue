@@ -172,12 +172,10 @@
 </div>
 
 
-
-
       </div><!-- modal-body -->
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">取消</button>
-        <a href="#" type="button" class="btn btn-outline-dark" onclick="return confirm('是否確定送出？');">送出</a>
+        <button type="button" class="btn btn-outline-dark" onclick="return confirm('是否確定送出？');" id="formsend_add">送出</button>
       </div>
     </div>
   </div>
@@ -220,6 +218,15 @@ export default {
       formSendBtn.addEventListener('click', (e) => {
         e.preventDefault();
         this.handleFormSubmit();
+      });
+    }
+
+    // ===== Bind add-sign submit button for modal =====
+    const formSendAddBtn = document.getElementById('formsend_add');
+    if (formSendAddBtn) {
+      formSendAddBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.handleFormSendAdd();
       });
     }
   },
@@ -546,6 +553,200 @@ export default {
         console.log(`📥 Response:`, response.data);
       } catch (error) {
         console.error('❌ Failed to send signal:', error);
+        throw new Error(`Signal execution failed: ${error.response?.data?.message || error.message}`);
+      }
+    }
+    ,
+
+    // ===== Add-sign flow methods (modal '送出' for 加簽) =====
+    /**
+     * Get selected addsign type from the DOM select `#addsigntype`
+     * @returns {string}
+     */
+    getAddSignType() {
+      try {
+        const el = document.getElementById('addsigntype');
+        const val = el ? el.value : '';
+        console.log(`📥 Retrieved addsigntype: ${val}`);
+        return val;
+      } catch (error) {
+        console.error('❌ Error retrieving addsigntype:', error);
+        return '';
+      }
+    },
+
+    /**
+     * Get checked user names from jstree `#html1`
+     * @returns {Array<string>} list of names
+     */
+    getSignListFromJstree() {
+      try {
+        const nodes = $('#html1').jstree('get_checked', true) || [];
+        const signlist = nodes.map(n => n.text).filter(t => t && t.trim() !== '');
+        console.log('📥 Retrieved signlist from jstree:', signlist);
+        return signlist;
+      } catch (error) {
+        console.error('❌ Error retrieving signlist from jstree:', error);
+        return [];
+      }
+    },
+
+    /**
+     * Orchestrator for the add-sign modal submit button
+     * Follows steps 1-7 as requested: create process with signlist, insert form, update vars,
+     * find IntermediateMessageEventBoundary_17 execution and send signal with signlist and addsigntype
+     */
+    async handleFormSendAdd() {
+      if (this.isSubmitting) {
+        console.warn('Add-sign submission already in progress');
+        return;
+      }
+
+      this.isSubmitting = true;
+      try {
+        console.log('🔄 Starting add-sign submission workflow...');
+
+        // Step 1: get addsigntype
+        const addsigntype = this.getAddSignType();
+        if (!addsigntype) throw new Error('請選擇加簽類型');
+        console.log(`✓ Step 1: addsigntype = ${addsigntype}`);
+
+        // Step 2: get signlist from jstree
+        const signlist = this.getSignListFromJstree();
+        if (!Array.isArray(signlist) || signlist.length === 0) throw new Error('請選擇加簽人員');
+        console.log(`✓ Step 2: signlist =`, signlist);
+
+        // Step 3: get existing additional variable (from checkbox)
+        const additional = this.checkbox1 ? 'yes' : 'no';
+        console.log(`✓ Step 3: additional = ${additional}`);
+
+        // Step 4: create process instance with signlist and addsigntype
+        const processInstanceId = await this.createProcessWithSignlist(additional, signlist, addsigntype);
+        console.log(`✓ Step 4: processInstanceId = ${processInstanceId}`);
+
+        // Step 5: insert application_form (reuse insertForm)
+        const applicationFormId = await this.insertForm(processInstanceId);
+        console.log(`✓ Step 5: application_form_id = ${applicationFormId}`);
+
+        // Step 6: update process variables (reuse updateVariables)
+        await this.updateVariables(processInstanceId, applicationFormId);
+        console.log('✓ Step 6: process variables updated');
+
+        // Query executions to find IntermediateMessageEventBoundary_17
+        const jobId = await this.findIntermediateMessageExecution(processInstanceId);
+        console.log(`✓ Step 6b: Found IntermediateMessageEventBoundary_17 jobId = ${jobId}`);
+
+        // Step 7: send signal with signlist and addsigntype
+        await this.signalExecutionWithVars(jobId, signlist, addsigntype);
+        console.log('✓ Step 7: Signal sent successfully for add-sign flow');
+
+        alert('加簽已送出');
+      } catch (error) {
+        console.error('❌ Add-sign workflow failed:', error);
+        alert(`加簽提交失敗: ${error.message}`);
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+
+    /**
+     * Create Flowable process instance with signlist and addsigntype included
+     * @param {string} additional
+     * @param {Array<string>} signlist
+     * @param {string} addsigntype
+     * @returns {Promise<string>} processInstanceId
+     */
+    async createProcessWithSignlist(additional, signlist, addsigntype) {
+      try {
+        const url = '/flowable/runtime/process-instances';
+        const payload = {
+          processDefinitionKey: 'mainbpm',
+          variables: [
+            { name: 'rollback', value: 'no' },
+            { name: 'additional', value: additional },
+            { name: 'signlist', value: signlist, type: 'json' },
+            { name: 'addsigntype', value: addsigntype }
+          ]
+        };
+
+        console.log(`📤 Sending POST request to ${url} (createProcessWithSignlist)`);
+        console.log(`📋 Payload:`, payload);
+
+        const response = await axios.post(url, payload, {
+          headers: this.getBasicAuthHeader()
+        });
+
+        if (!response.data || !response.data.id) {
+          throw new Error('Invalid response: missing process instance ID');
+        }
+
+        const processInstanceId = response.data.id;
+        console.log(`📥 Response received: processInstanceId = ${processInstanceId}`);
+        return processInstanceId;
+      } catch (error) {
+        console.error('❌ Failed to create process instance (with signlist):', error);
+        throw new Error(`Process creation failed: ${error.response?.data?.message || error.message}`);
+      }
+    },
+
+    /**
+     * Find execution with activityId === 'IntermediateMessageEventBoundary_17'
+     * @param {string} processInstanceId
+     * @returns {Promise<string>} jobId
+     */
+    async findIntermediateMessageExecution(processInstanceId) {
+      try {
+        const url = '/flowable/runtime/executions';
+        console.log(`📤 Sending GET request to ${url} to find IntermediateMessageEventBoundary_17`);
+
+        const response = await axios.get(url, {
+          params: { processInstanceId: processInstanceId },
+          headers: this.getBasicAuthHeader()
+        });
+
+        const executionList = response.data.data || response.data;
+        console.log(`📥 Execution list:`, executionList);
+
+        const found = executionList.find(e => e.activityId === 'IntermediateMessageEventBoundary_17');
+        if (!found) {
+          throw new Error('IntermediateMessageEventBoundary_17 not found');
+        }
+
+        console.log(`✓ Found IntermediateMessageEventBoundary_17 execution id: ${found.id}`);
+        return found.id;
+      } catch (error) {
+        console.error('❌ Failed to find IntermediateMessageEventBoundary_17 execution:', error);
+        throw new Error(error.response?.data?.message || error.message || 'Execution search failed');
+      }
+    },
+
+    /**
+     * Send signal to execution with variables (signlist, addsigntype)
+     * @param {string} jobId
+     * @param {Array<string>} signlist
+     * @param {string} addsigntype
+     */
+    async signalExecutionWithVars(jobId, signlist, addsigntype) {
+      try {
+        const url = `/flowable/runtime/executions/${jobId}`;
+        const payload = {
+          action: 'signal',
+          variables: [
+            { name: 'signlist', value: signlist, type: 'json' },
+            { name: 'addsigntype', value: addsigntype }
+          ]
+        };
+
+        console.log(`📤 Sending PUT request to ${url} (signalExecutionWithVars)`);
+        console.log(`📋 Payload:`, payload);
+
+        const response = await axios.put(url, payload, {
+          headers: this.getBasicAuthHeader()
+        });
+
+        console.log('📥 Signal response:', response.data);
+      } catch (error) {
+        console.error('❌ Failed to send signal with vars:', error);
         throw new Error(`Signal execution failed: ${error.response?.data?.message || error.message}`);
       }
     }
