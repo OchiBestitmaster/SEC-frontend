@@ -21,6 +21,7 @@ import ReceiveSignView from "../views/ReceiveSignView.vue";
 import ReceiveListView from "../views/ReceiveListView.vue";
 import ReceiveDocViewD from "../views/ReceiveDocView_D.vue";
 import ReceiveDocViewD2 from "../views/ReceiveDocView_D2.vue";
+import ReceiveDocViewD3 from "../views/ReceiveDocView_D3.vue";
 
 import HomeViewR from '../views/HomeView_R.vue';
 import HomeViewO from '../views/HomeView_O.vue';
@@ -545,6 +546,18 @@ const routes = [
         path: ':id',
         name: 'ReceiveDocViewD2Id',
         component: ReceiveDocViewD2,
+        meta: { pageName: '承辦人', sideMenu: 'SideMenuD' }
+      },
+    ],
+  },
+  {
+    path: '/ReceiveDocD3',
+    component: MainView,
+    children: [
+      {
+        path: '',
+        name: 'ReceiveDocViewD3',
+        component: ReceiveDocViewD3,
         meta: { pageName: '承辦人', sideMenu: 'SideMenuD' }
       },
     ],
