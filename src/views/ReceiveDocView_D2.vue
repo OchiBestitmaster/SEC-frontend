@@ -4,7 +4,7 @@
     <div class="filetitlewrapper mt-1">
       <div class="filetitle"><h2>簡易簽辦單</h2></div>
       <div class="btnright">
-        <a href="/ReceiveDocD" type="button" class="btn btn-outline-dark">新增</a>
+        
       </div>
     </div>
   
@@ -57,7 +57,7 @@
                 <td class="text-center">{{ formatDate(item.date) }}</td>
                 <td class="text-center">{{ item.state }}</td>
                 <td class="text-center">
-                  <div class="btn-group btn-group-sm" role="group">
+                  <div class="btn-group btn-group-sm" role="group" v-if="isActionableApproval(item)">
                     <button type="button" class="btn btn-outline-dark" @click="openSignModal(item)">簽核</button>
                   </div>
                 </td>
@@ -155,8 +155,9 @@
 
       </div><!-- modal-body -->
             <div class="modal-footer">
-         <button type="button" class="btn btn-danger text-white me-1" @click="handleReject" :disabled="isSubmitting">否決</button>
-              <button type="button" class="btn btn-dark me-1" @click="handleReturn" :disabled="isSubmitting">退回</button>
+              <button type="button" class="btn btn-danger text-white me-1" @click="handleReject" :disabled="isSubmitting">否決</button>
+              <button type="button" class="btn btn-dark me-1" @click="handleReturn" :disabled="isSubmitting" v-show="isReturnButtonVisible">退回</button>
+              <button type="button" class="btn btn-dark me-1" @click="handleSkip" :disabled="isSubmitting" v-show="isSkipButtonVisible">跳關</button>
               <button type="button" class="btn btn-primary" @click="handleApprove" :disabled="isSubmitting">同意</button>
             </div>
     </div>
@@ -190,6 +191,48 @@ export default {
     };
   },
 
+  computed: {
+    /**
+     * isReturnButtonVisible
+     * 目的：判斷「退回」按鈕是否應顯示
+     * 規則：只在簽核者為「主任」或「經理」時顯示
+     */
+    isReturnButtonVisible() {
+      if (!this.selectedApproval || !this.selectedApproval.signatory) {
+        return false;
+      }
+      const signatory = this.selectedApproval.signatory;
+      return signatory === '主任' || signatory === '經理';
+    },
+    // isSkipButtonVisible: 顯示條件 => 簽核者為「承辦人」且簽核狀態為「經理-退回」
+    isSkipButtonVisible() {
+      // 如果沒有選到任何簽核項目，或 approvals 資料為空，則不顯示
+      if (!this.selectedApproval || !Array.isArray(this.approvals) || this.approvals.length === 0) return false;
+
+      // 確保目前簽核者是承辦人（通常 UI 開啟簽核 modal 時就是該履歷）
+      if (this.selectedApproval.signatory !== '承辦人') return false;
+
+      // 透過 id 或物件參考找到目前簽核在 approvals 陣列中的 index
+      const selId = this.selectedApproval && (this.selectedApproval.id != null ? this.selectedApproval.id : null);
+      let idx = -1;
+      if (selId != null) {
+        idx = this.approvals.findIndex(a => a && a.id === selId);
+      }
+      if (idx === -1) {
+        idx = this.approvals.findIndex(a => a === this.selectedApproval);
+      }
+
+      // 如果找不到或已經是第一筆記錄（沒有前一筆），則不顯示
+      if (idx <= 0) return false;
+
+      const prev = this.approvals[idx - 1];
+      if (!prev) return false;
+
+      // 顯示條件：前一筆簽核者是經理，且狀態為 '經理-退回'
+      return prev.signatory === '經理' && prev.state === '經理-退回';
+    },
+  },
+
 mounted() {
     $('#html1').jstree({
         core: {
@@ -219,6 +262,12 @@ mounted() {
     this.init();
   },
   methods: {
+    // ===== UI helper: approval actionability =====
+    isActionableApproval(item) {
+      if (!item || !item.state) return false;
+      const st = String(item.state).trim();
+      return st === '修改中' || st === '審核中';
+    },
     /**
      * init()
      * 目的：載入申請表單與簽核紀錄的進入點。
@@ -427,12 +476,198 @@ mounted() {
     },
 
     async handleReturn() {
-      // TODO: 此功能待後續實作
-      console.warn('[ReceiveDocView_D2] handleReturn is a placeholder');
-      return;
+      this.isSubmitting = true;
+      try {
+        // Step 0: 基本資料檢查
+        const approvalId = this.selectedApproval && this.selectedApproval.id ? this.selectedApproval.id : null;
+        if (!approvalId) {
+          throw new Error('[ReceiveDocView_D2] handleReturn: 無法取得 approvalId');
+        }
+
+        const signContent = this.comment || '';
+
+        const now = new Date();
+        const datePart = now.toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' });
+        const timePart = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Taipei', hour12: false });
+        const formattedDate = `${datePart} ${timePart}`;
+
+        // 取得簽核者角色與 processInstanceId
+        const signerRole = this.selectedApproval && this.selectedApproval.signatory ? this.selectedApproval.signatory : null;
+        if (!signerRole) {
+          throw new Error('[ReceiveDocView_D2] handleReturn: 無法取得簽核者角色');
+        }
+
+        const processInstanceId = this.applicationForm && this.applicationForm.process_instance_id ? this.applicationForm.process_instance_id : null;
+        if (!processInstanceId) {
+          throw new Error('[ReceiveDocView_D2] handleReturn: 無法取得 processInstanceId');
+        }
+
+        // Step 1: PATCH 更新 approval_form
+        const stateValue = signerRole === '主任' ? '主任-退回' : (signerRole === '經理' ? '經理-退回' : '退回');
+        const patchApprovalBody = {
+          content: signContent,
+          state: stateValue,
+          date: formattedDate,
+        };
+
+        console.log('[ReceiveDocView_D2] Step 1: PATCH approval_form', { approvalId, patchApprovalBody });
+        await axios.patch(`/postgrest/approval_form?id=eq.${approvalId}`, patchApprovalBody);
+        console.info('Step 1: 更新 approval_form 完成', formattedDate);
+
+        // Step 2: BPMN 回溯（change-state）
+        const FromactivityMap = {
+          '主任': 'ReceiveTask_11',
+          '經理': 'ReceiveTask_24',
+        };
+        const fromActivity = FromactivityMap[signerRole];
+        if (!fromActivity) {
+          throw new Error('[ReceiveDocView_D2] handleReturn: 無法對應 from activityId');
+        }
+
+        const changeStateBody = {
+          operations: [
+            { type: 'MOVE_ACTIVITY_ID_TO', from: fromActivity, to: 'ReceiveTask_52' }
+          ]
+        };
+
+        console.log('[ReceiveDocView_D2] Step 2: POST change-state', { processInstanceId, changeStateBody });
+        await axios.post(`http://localhost:9090/api/flowable/process-instances/${processInstanceId}/change-state`, changeStateBody);
+
+        // Step 3: 查詢 Flowable Execution，尋找 activityId === 'ReceiveTask_52'
+        console.log('[ReceiveDocView_D2] Step 3: 查詢 Flowable Execution', { processInstanceId });
+        const flowableResp = await axios.get('/flowable/runtime/executions', {
+          params: { processInstanceId },
+          auth: { username: 'rest-admin', password: 'test' },
+        });
+
+        const executionList = flowableResp && flowableResp.data && flowableResp.data.data ? flowableResp.data.data : [];
+        const targetExecution = executionList.find(exe => exe.activityId === 'ReceiveTask_52');
+        if (!targetExecution) {
+          throw new Error('找不到對應 Execution');
+        }
+
+        const jobId = targetExecution.id;
+        console.debug('Step 2: 找到 jobId', jobId);
+
+        // Step 4: 送出 Flowable Signal
+        console.log('[ReceiveDocView_D2] Step 4: 送出 Flowable Signal', { jobId });
+        const signalBody = { action: 'signal' };
+        await axios.put(`/flowable/runtime/executions/${jobId}`, signalBody, {
+          auth: { username: 'rest-admin', password: 'test' }
+        });
+
+        // 完成後關閉 modal 並重新整理本頁 (stay on same page)
+        try {
+          const signboxEl = document.getElementById('signbox');
+          if (signboxEl) {
+            signboxEl.addEventListener('hidden.bs.modal', () => {
+              try { window.location.reload(); } catch (e) { console.warn('[ReceiveDocView_D2] reload failed:', e); }
+            }, { once: true });
+          }
+          if (this.signboxModal) this.signboxModal.hide();
+          else if (!signboxEl) {
+            try { window.location.reload(); } catch (e) { console.warn('[ReceiveDocView_D2] reload failed:', e); }
+          }
+        } catch (err) {
+          console.error('[ReceiveDocView_D2] error while hiding sign modal or reloading:', err);
+          try { window.location.reload(); } catch (e) { console.warn('[ReceiveDocView_D2] reload failed:', e); }
+        }
+
+      } catch (error) {
+        console.error('Step 錯誤：', error);
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+
+    async handleSkip() {
+      this.isSubmitting = true;
+      try {
+        // Step 0: 基本資料檢查
+        const approvalId = this.selectedApproval && this.selectedApproval.id ? this.selectedApproval.id : null;
+        if (!approvalId) {
+          throw new Error('[ReceiveDocView_D2] handleSkip: 無法取得 approvalId');
+        }
+
+        const signContent = this.comment || '';
+        const now = new Date();
+        const datePart = now.toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' });
+        const timePart = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Taipei', hour12: false });
+        const formattedDate = `${datePart} ${timePart}`;
+
+        // Step 1: PATCH 更新 approval_form
+        const patchApprovalBody = {
+          content: signContent,
+          state: '完成',
+          date: formattedDate,
+        };
+        await axios.patch(`/postgrest/approval_form?id=eq.${approvalId}`, patchApprovalBody);
+        console.info('Step 1: 更新 approval_form 完成', formattedDate);
+
+        // Step 2: BPMN 流程跳關（從 ReceiveTask_8 跳到 ReceiveTask_11）
+        const processInstanceId = this.applicationForm && this.applicationForm.process_instance_id ? this.applicationForm.process_instance_id : null;
+        if (!processInstanceId) {
+          throw new Error('[ReceiveDocView_D2] handleSkip: 無法取得 processInstanceId');
+        }
+
+        const changeStateBody = {
+          operations: [
+            { type: 'MOVE_ACTIVITY_ID_TO', from: 'ReceiveTask_8', to: 'ReceiveTask_11' }
+          ]
+        };
+        await axios.post(`http://localhost:9090/api/flowable/process-instances/${processInstanceId}/change-state`, changeStateBody);
+
+        // Step 3: 查詢 Flowable Execution，取得 ReceiveTask_11 的 execution id
+        const flowableResp = await axios.get('/flowable/runtime/executions', {
+          params: { processInstanceId },
+          auth: { username: 'rest-admin', password: 'test' },
+        });
+        const executionList = flowableResp && flowableResp.data && flowableResp.data.data ? flowableResp.data.data : [];
+        const targetExecution = executionList.find(exe => exe.activityId === 'ReceiveTask_11');
+        if (!targetExecution) {
+          throw new Error('找不到對應 Execution');
+        }
+        const jobId = targetExecution.id;
+        console.debug('Step 2: 找到 jobId', jobId);
+
+        // Step 4: 送出 Flowable Signal
+        const signalBody = { action: 'signal' };
+        await axios.put(`/flowable/runtime/executions/${jobId}`, signalBody, {
+          auth: { username: 'rest-admin', password: 'test' }
+        });
+
+        // 完成後關閉 modal 並重新整理本頁 (stay on same page)
+        try {
+          const signboxEl = document.getElementById('signbox');
+          if (signboxEl) {
+            signboxEl.addEventListener('hidden.bs.modal', () => {
+              try { window.location.reload(); } catch (e) { console.warn('[ReceiveDocView_D2] reload failed:', e); }
+            }, { once: true });
+          }
+          if (this.signboxModal) this.signboxModal.hide();
+          else if (!signboxEl) {
+            try { window.location.reload(); } catch (e) { console.warn('[ReceiveDocView_D2] reload failed:', e); }
+          }
+        } catch (err) {
+          console.error('[ReceiveDocView_D2] error while hiding sign modal or reloading:', err);
+          try { window.location.reload(); } catch (e) { console.warn('[ReceiveDocView_D2] reload failed:', e); }
+        }
+      } catch (error) {
+        console.error('Step 錯誤：', error);
+      } finally {
+        this.isSubmitting = false;
+      }
     },
 
     async handleApprove() {
+      // 確認操作：要求使用者確認是否確定要同意
+      try {
+        const confirmed = window.confirm('是否確定同意此簽核？');
+        if (!confirmed) return;
+      } catch (e) {
+        // If confirm is not available, proceed without confirmation (edge case)
+        console.warn('[ReceiveDocView_D2] confirm dialog failed or unavailable:', e);
+      }
       // 處理加簽模式（若使用者勾選了加簽區塊）
       let addsigntype = null;
       let signlist = null;
@@ -461,7 +696,6 @@ mounted() {
           console.log('[ReceiveDocView_D2] 加簽模式：', { addsigntype, signlist, additional });
         }
 
-        // ===== Step 1：PATCH 更新 PostgREST approval_form =====
         // ===== Step 1：PATCH 更新 PostgREST approval_form =====
         const approvalId = this.selectedApproval && this.selectedApproval.id ? this.selectedApproval.id : null;
         if (!approvalId) {
@@ -506,6 +740,7 @@ mounted() {
           '主任': 'ReceiveTask_11',
           '經理': 'ReceiveTask_24',
           '會辦': 'ReceiveTask_39',
+          '承辦人': 'ReceiveTask_8',
         };
 
         // 若為加簽模式，新增加簽對應事件
@@ -515,7 +750,7 @@ mounted() {
           activityMap['會辦加簽'] = 'IntermediateMessageEventBoundary_43';
         }
 
-        // 當簽核者非「主任」「經理」「會辦」時，使用 ReceiveTask_1，且 processInstanceId 改用 approval_form 的 process_instance_id
+        // 當簽核者非「主任」「經理」「會辦」「承辦人」時，使用 ReceiveTask_1，且 processInstanceId 改用 approval_form 的 process_instance_id
         let targetActivityId = activityMap[signerRole];
         let processInstanceToQuery = parentProcessInstanceId;
         if (!targetActivityId) {
@@ -586,8 +821,24 @@ mounted() {
         // ===== 完成流程 =====
         console.info('[ReceiveDocView_D2] handleApprove: 所有步驟完成');
         // 此處可以加入成功通知或重新載入資料的邏輯
-        // 例如：this.signboxModal.hide(); await this.init();
-        if (this.signboxModal) this.signboxModal.hide();
+        // 先關閉 modal，待 modal 隱藏事件後執行頁面重新整理 (reload)
+        try {
+          const signboxEl = document.getElementById('signbox');
+          if (signboxEl) {
+            signboxEl.addEventListener('hidden.bs.modal', () => {
+              // Reload the page (hard refresh) to reflect changes
+              try { window.location.reload(); } catch (e) { console.warn('[ReceiveDocView_D2] reload failed:', e); }
+            }, { once: true });
+          }
+          if (this.signboxModal) this.signboxModal.hide();
+          else if (!signboxEl) {
+            // If no modal element at all, refresh immediately
+            try { window.location.reload(); } catch (e) { console.warn('[ReceiveDocView_D2] reload failed:', e); }
+          }
+        } catch (err) {
+          console.error('[ReceiveDocView_D2] error while hiding sign modal or reloading:', err);
+          try { window.location.reload(); } catch (e) { console.warn('[ReceiveDocView_D2] reload failed:', e); }
+        }
 
       } catch (err) {
         console.error('Step 錯誤：', err);

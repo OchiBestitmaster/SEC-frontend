@@ -318,6 +318,10 @@ export default {
 
         console.log('✅ Form submission workflow completed successfully!');
         alert('簽辦單已送出');
+        // Redirect to the pending receive listing for D after successful submission
+        if (this.$router) {
+          this.$router.push('/PendingReceiveViewD');
+        }
       } catch (error) {
         console.error('❌ Form submission workflow failed:', error);
         alert(`提交失敗: ${error.message}`);
@@ -641,6 +645,60 @@ export default {
         console.log('✓ Step 7: Signal sent successfully for add-sign flow');
 
         alert('加簽已送出');
+        // Ensure the modal is hidden before redirecting to PendingReceiveViewD
+        try {
+    const modalEl = document.getElementById('customtopicbox');
+    if (modalEl) {
+        // 取得或建立 modal instance
+        const modalInstance =
+            bootstrap.Modal.getInstance(modalEl) ||
+            new bootstrap.Modal(modalEl);
+
+        // modal 關閉後導頁 + 清除 backdrop
+        modalEl.addEventListener(
+            'hidden.bs.modal',
+            () => {
+                // --- 保險：強制清除 backdrop 與 modal-open ---
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+
+                // --- 正常導頁 ---
+                if (this.$router) {
+                    this.$router.push('/PendingReceiveViewD');
+                }
+            },
+            { once: true }
+        );
+
+        // 關閉 modal（觸發 hidden.bs.modal）
+        modalInstance.hide();
+    } else {
+        // 找不到 modal → 直接導頁（外加清除 backdrop）
+        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+
+        if (this.$router) {
+            this.$router.push('/PendingReceiveViewD');
+        }
+    }
+} catch (e) {
+    console.error('Failed to hide modal and redirect:', e);
+
+    // 例外仍清掉 backdrop
+    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+
+    if (this.$router) {
+        this.$router.push('/PendingReceiveViewD');
+    }
+}
+
       } catch (error) {
         console.error('❌ Add-sign workflow failed:', error);
         alert(`加簽提交失敗: ${error.message}`);

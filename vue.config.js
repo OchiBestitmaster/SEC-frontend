@@ -17,6 +17,13 @@ module.exports = defineConfig({
         pathRewrite: {
           '^/postgrest': ''
         }
+      },
+      '/flowablejava': {
+        target: 'http://localhost:9090',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/flowablejava': ''
+        }
       }
     }
   }
